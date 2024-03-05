@@ -7,8 +7,7 @@ import static Banking.Application.UserAccount.aUserAccount;
 public class CommandLineInterface implements UserInterface{
     private final Scanner userInput;
     private final UserAccountManager userAccountManager;
-
-    private final BankService bankService;
+    private final BankService bankService; //Chci to tak udělat ?
 
     public CommandLineInterface(){
         this.userAccountManager = UserAccountManager.getInstance();
@@ -62,15 +61,15 @@ public class CommandLineInterface implements UserInterface{
         for (int attempts = 0; attempts < 3; ++attempts) {
             System.out.println("Please login.");
             System.out.println("Your username: ");
-            String username = userInput.nextLine();
+            String email = userInput.nextLine();
             System.out.println("Your password: ");
             String password = userInput.nextLine();
-            if (bank.login(username, password) != null) {
+            if (bankService.loginToBankAccount(email, password) != null) {
                 int action;
                 do {
-                    if (bank.isAccountDeleted()) {
-                        return;
-                    }
+//                    if (bank.isAccountDeleted()) {
+//                        return;
+//                    }
                     options();
                     action = Integer.parseInt(userInput.nextLine());
                     chosenAction(action);
@@ -101,25 +100,25 @@ public class CommandLineInterface implements UserInterface{
             case 1:
                 System.out.println("Amount you would like to deposit:");
                 double depositAmount = Double.parseDouble(userInput.nextLine());
-                bank.deposit(depositAmount);
+//                bankService.deposit(depositAmount);
                 break;
             case 2:
                 System.out.println("Amount you would like to withdraw:");
                 double withdrawAmount = Double.parseDouble(userInput.nextLine());
-                bank.withdraw(withdrawAmount);
+//                bankService.withdraw(withdrawAmount);
                 break;
             case 3:
                 System.out.println("Are you sure you want to delete your account? (yes/no)");
                 String confirmation = userInput.nextLine();
                 if ("yes".equalsIgnoreCase(confirmation)) {
-                    bank.deleteAccount();
+                    bankService.deleteAccount();
                 } else {
                     System.out.println("Account deletion cancelled.");
                 }
                 break;
             case 4:
                 System.out.println("Logged out successfully.");
-                bank.logout();
+                bankService.logoutFromBankAccount();
                 break;
             default:
                 System.out.println("Invalid option selected.");

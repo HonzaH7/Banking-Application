@@ -52,6 +52,22 @@ public class UserAccount {
                 .build();
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
     private static class UserAccountBuilder {
         private String firstName;
         private String lastName;
