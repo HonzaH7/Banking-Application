@@ -51,7 +51,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
                 PreparedStatement statement = CONNECTION.prepareStatement("DELETE FROM accounts WHERE email = ? AND password = ?");
                 statement.setString(1, userAccount.getEmail());
                 statement.setString(2, userAccount.getPassword());
-                if (statement.executeUpdate() > 0) {
+                if (isAccountDeleted(statement)) {
                     return Try.success("Account deleted successfully");
                 } else {
                     return Try.failure(new RuntimeException("Deletion wasn't successful"));
@@ -61,6 +61,10 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
             return Try.failure(new RuntimeException("Deletion request failed"));
         }
         return Try.failure(new RuntimeException(String.valueOf(nothing()))); // idk
+    }
+
+    private boolean isAccountDeleted(PreparedStatement statement) throws SQLException {
+        return statement.executeUpdate() > 0;
     }
 
     @Override
