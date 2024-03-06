@@ -45,7 +45,7 @@ public class BankService {
         userAccountManager.logOut();
     }
 
-    public Try<Void> deposit(double amount) {
+    public Try<Nothing> deposit(double amount) {
         UserAccount userAccount = userAccountManager.getLoggedUser();
 
         if (userAccount == null) {
@@ -54,10 +54,10 @@ public class BankService {
 
         bankAccountRepository.depositFromUserAccount(amount, userAccount);
 
-        return null;
+        return Try.success(nothing());
     }
 
-    public Try<Void> withdraw(double amount) {
+    public Try<Nothing> withdraw(double amount) {
         UserAccount userAccount = userAccountManager.getLoggedUser();
 
         if(userAccount == null){
@@ -72,7 +72,7 @@ public class BankService {
 
         bankAccountRepository.withdrawFromUserAccount(amount, userAccount);
 
-        return null;
+        return Try.success(nothing());
 //        if(result.isFailure()){
 //            result.castFailure();
 //        }

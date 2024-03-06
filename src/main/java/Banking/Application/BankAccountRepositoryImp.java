@@ -106,7 +106,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
     }
 
     @Override
-    public void depositFromUserAccount(double amount, UserAccount userAccount) {
+    public Try<Nothing> depositFromUserAccount(double amount, UserAccount userAccount) {
         try {
             PreparedStatement statement = CONNECTION.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE email = ?");
             statement.setDouble(1, amount);
@@ -119,7 +119,9 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
             }
         } catch (SQLException e) {
             logger.error("Error executing deposit request", e);
+            return Try.failure(new RuntimeException("Error executing deposit request"));
         }
+        return Try.failure(new RuntimeException(String.valueOf(nothing()))); //idk
     }
 
     private static boolean isBalanceUpdated(PreparedStatement statement) throws SQLException {
@@ -144,7 +146,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
     }
 
     @Override
-    public void withdrawFromUserAccount(double amount, UserAccount userAccount) {
+    public Try<Nothing> withdrawFromUserAccount(double amount, UserAccount userAccount) {
         try {
             PreparedStatement statement = CONNECTION.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE email = ? AND balance >= ?");
             statement.setDouble(1, amount);
@@ -160,8 +162,9 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
             }
         } catch (SQLException e) {
             logger.error("Error executing withdraw request", e);
-            //return Try.failure(new RuntimeException("Error executing create account request"));
+            return Try.failure(new RuntimeException("Error executing withdraw request"));
         }
+        return Try.failure(new RuntimeException(String.valueOf(nothing()))); //idk
     }
 
 
