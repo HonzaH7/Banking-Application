@@ -81,31 +81,17 @@ public class CommandLineInterface implements UserInterface{
         System.out.println("Login failed after multiple attempts.");
     }
 
-//    public void createAnAccount() {
-//        System.out.println("Please create an account.");
-//        System.out.println("Your firstname: ");
-//        String firstname = userInput.nextLine();
-//        System.out.println("Your lastname: ");
-//        String lastname = userInput.nextLine();
-//        System.out.println("Your username: ");
-//        String username = userInput.nextLine();
-//        System.out.println("Your password: ");
-//        String password = userInput.nextLine();
-//
-//        bankService.createAccount(userInput, firstname, lastname, username, password);
-//    }
-
     public void chosenAction(int action) {
         switch (action) {
             case 1:
                 System.out.println("Amount you would like to deposit:");
                 double depositAmount = Double.parseDouble(userInput.nextLine());
-//                bankService.deposit(depositAmount);
+                bankService.deposit(depositAmount);
                 break;
             case 2:
                 System.out.println("Amount you would like to withdraw:");
                 double withdrawAmount = Double.parseDouble(userInput.nextLine());
-//                bankService.withdraw(withdrawAmount);
+                bankService.withdraw(withdrawAmount);
                 break;
             case 3:
                 System.out.println("Are you sure you want to delete your account? (yes/no)");

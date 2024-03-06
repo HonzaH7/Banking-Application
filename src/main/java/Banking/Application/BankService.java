@@ -46,24 +46,22 @@ public class BankService {
     }
 
     public Try<Void> deposit(double amount) {
-        if (this.currentAccount != null) {
-            if (REQUEST.depositRequest(amount, currentAccount)) {
-                double newBalance = this.currentAccount.getBalance() + amount;
-                this.currentAccount.setBalance(newBalance);
-                System.out.println("Deposit successful. New balance: " + newBalance);
-            } else {
-                System.out.println("Deposit failed.");
-            }
-        } else {
-            System.out.println("No user is currently logged in.");
+        UserAccount userAccount = userAccountManager.getLoggedUser();
+
+        if (userAccount == null) {
+            return Try.failure(new RuntimeException(("No user is currently logged in.")));
         }
+
+        bankAccountRepository.depositFromUserAccount(amount, userAccount);
+
+        return null;
     }
 
     public Try<Void> withdraw(double amount) {
         UserAccount userAccount = userAccountManager.getLoggedUser();
 
         if(userAccount == null){
-            return "neco";
+            return Try.failure(new RuntimeException(("No user is currently logged in.")));
         }
 
 //         nevim jak to udelat zatim
@@ -72,11 +70,12 @@ public class BankService {
 //         2) Ucet nema dostatek penez, muzeme nabidnout vybrat ty, ktere tam ma
 //         3) Ucet ma dostatek penez, proslo to v poradku
 
-        Try<Boolean> result = bankAccountRepository.withdrawFromUserAccount(userAccount, amount);
+        bankAccountRepository.withdrawFromUserAccount(amount, userAccount);
 
-        if(result.isFailure()){
-            result.castFailure();
-        }
+        return null;
+//        if(result.isFailure()){
+//            result.castFailure();
+//        }
     }
 
     public Try<String> deleteAccount() {

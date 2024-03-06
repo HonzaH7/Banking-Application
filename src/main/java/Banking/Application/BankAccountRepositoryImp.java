@@ -39,7 +39,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
                 System.out.println("Wrong username or password");
             }
         } catch (SQLException e) {
-        logger.error("Error executing login request", e);
+            logger.error("Error executing login request", e);
         }
         return null;
     }
@@ -58,14 +58,16 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
                 }
             }
         } catch (SQLException e) {
+            logger.error("Error executing delete account request", e);
             return Try.failure(new RuntimeException("Deletion request failed"));
         }
         return Try.failure(new RuntimeException(String.valueOf(nothing()))); // idk
     }
 
-    private boolean isAccountDeleted(PreparedStatement statement) throws SQLException {
+    private static boolean isAccountDeleted(PreparedStatement statement) throws SQLException {
         return statement.executeUpdate() > 0;
     }
+
 
     @Override
     public boolean doesAccountExist(String email) {
@@ -75,11 +77,15 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
             checkStatement.setString(1, email);
             ResultSet resultSet = checkStatement.executeQuery();
             resultSet.next();
-            return (resultSet.getInt(1) == 0);
+            return isEmailInDatabase(resultSet);
         } catch (SQLException e) {
             logger.error("Error executing email uniqueness check request", e);
         }
         return false;
+    }
+
+    private static boolean isEmailInDatabase(ResultSet resultSet) throws SQLException {
+        return resultSet.getInt(1) > 0;
     }
 
     @Override
@@ -93,8 +99,70 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
             statement.setString(4, userAccount.getPassword());
             statement.executeUpdate();
         } catch (SQLException e) {
+            logger.error("Error executing create account request", e);
             return Try.failure(new RuntimeException("Error executing create account request"));
         }
         return Try.failure(new RuntimeException(String.valueOf(nothing()))); //idk
     }
+
+    @Override
+    public void depositFromUserAccount(double amount, UserAccount userAccount) {
+        try {
+            PreparedStatement statement = CONNECTION.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE email = ?");
+            statement.setDouble(1, amount);
+            statement.setString(2, userAccount.getEmail());
+            if (isBalanceUpdated(statement)) {
+                Try.success("Deposit successful.");
+                System.out.println("Account balance: " + retrieveBalance(userAccount.getEmail()));
+            } else {
+                System.out.println("Deposit failed");
+            }
+        } catch (SQLException e) {
+            logger.error("Error executing deposit request", e);
+        }
+    }
+
+    private static boolean isBalanceUpdated(PreparedStatement statement) throws SQLException {
+        return statement.executeUpdate() > 0;
+    }
+
+    private double retrieveBalance(String email) {
+        try {
+            double balance = 0.0;
+            PreparedStatement balanceStatement = CONNECTION.prepareStatement("SELECT balance FROM accounts WHERE email = ?");
+            balanceStatement.setString(1, email);
+            ResultSet resultSet = balanceStatement.executeQuery();
+            if (resultSet.next()) {
+                balance = resultSet.getDouble("balance");
+            }
+            return balance;
+        } catch (SQLException e) {
+            logger.error("Error executing retrieveBalance request");
+        }
+        System.out.println("Something went wrong");
+        return 0;
+    }
+
+    @Override
+    public void withdrawFromUserAccount(double amount, UserAccount userAccount) {
+        try {
+            PreparedStatement statement = CONNECTION.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE email = ? AND balance >= ?");
+            statement.setDouble(1, amount);
+            statement.setString(2, userAccount.getEmail());
+            statement.setDouble(3, amount);
+            if (isBalanceUpdated(statement)) {
+                System.out.println("Withdraw successful.");
+                System.out.println("Account balance: " + retrieveBalance(userAccount.getEmail()));
+                //return Try.success(true);
+            } else {
+                System.out.println("Withdraw failed");
+                //return Try.success(false);
+            }
+        } catch (SQLException e) {
+            logger.error("Error executing withdraw request", e);
+            //return Try.failure(new RuntimeException("Error executing create account request"));
+        }
+    }
+
+
 }
