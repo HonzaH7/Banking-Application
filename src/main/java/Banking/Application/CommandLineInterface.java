@@ -137,7 +137,7 @@ public class CommandLineInterface implements UserInterface{
     private void withdraw() {
         System.out.println("Amount you would like to withdraw:");
         double withdrawAmount = Double.parseDouble(userInput.nextLine());
-        Try<Nothing> result = eventManager.publish()
+        Try<Nothing> result = eventManager.publish();
     }
 
     private void deposit() {
