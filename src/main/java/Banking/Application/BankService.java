@@ -1,8 +1,9 @@
 package Banking.Application;
 
+import Utils.Nothing;
 import io.vavr.control.Try;
 
-import static Banking.Application.Nothing.nothing;
+import static Utils.Nothing.nothing;
 
 public class BankService {
     private final UserAccountManager userAccountManager;
@@ -13,37 +14,6 @@ public class BankService {
         this.bankAccountRepository = bankAccountRepository;
     }
 
-    public Try<Nothing> loginToBankAccount(String email, String password) {
-        UserAccount userAccount = bankAccountRepository.loginToAccount(email, password);
-        // jedna tabulka v databazi, kde bude username a password
-        // pokud to bude matchovat, tak najit v dalsi separatni tabulce informace o uzivateli
-        // pokud ne, vratit null
-        if(userAccount == null){
-            return Try.failure(new RuntimeException("Failed to login, please try again"));
-        }
-
-        userAccountManager.logUser(userAccount);
-        return Try.success(nothing());
-    }
-
-    public Try<String> createAccount(UserAccount userAccount) {
-        boolean doesAccountExist = bankAccountRepository.doesAccountExist(userAccount.getEmail());
-        if(doesAccountExist){
-            return Try.failure(new RuntimeException("Username already in use"));
-        }
-
-        Try<Nothing> result = bankAccountRepository.createAccount(userAccount);
-
-        if(result.isFailure()){
-            return Try.failure(new RuntimeException("Something went wrong, please try to create account again"));
-        }
-
-        return Try.success("Account created successfully");
-    }
-
-    public void logoutFromBankAccount() {
-        userAccountManager.logOut();
-    }
 
     public Try<Nothing> deposit(double amount) {
         UserAccount userAccount = userAccountManager.getLoggedUser();
@@ -76,22 +46,6 @@ public class BankService {
 //        if(result.isFailure()){
 //            result.castFailure();
 //        }
-    }
-
-    public Try<String> deleteAccount() {
-        UserAccount userAccount = userAccountManager.getLoggedUser();
-
-        if(userAccount == null){
-            return Try.failure(new RuntimeException("No user is currently logged in to delete an account."));
-        }
-
-        Try<String> result = bankAccountRepository.deleteAccount(userAccount);
-
-//        if(result.isFailure()){
-//            return result.castToFailure();
-//        }
-
-        return result;
     }
 
 }

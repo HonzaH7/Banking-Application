@@ -1,22 +1,26 @@
 package Banking.Application;
 
+import Utils.EventManager;
+import Utils.Nothing;
+import io.vavr.control.Try;
+
 import java.util.Scanner;
 
+import static Authentication.AuthenticationEvent.Type.*;
+import static Authentication.AuthenticationEvent.anAuthenticationEvent;
 import static Banking.Application.UserAccount.aUserAccount;
 
 public class CommandLineInterface implements UserInterface{
     private final Scanner userInput;
-    private final UserAccountManager userAccountManager;
-    private final BankService bankService; //Chci to tak udělat ?
+    private final EventManager eventManager;
 
-    public CommandLineInterface(){
-        this.userAccountManager = UserAccountManager.getInstance();
+    public CommandLineInterface(EventManager eventManager){
+        this.eventManager = eventManager;
         this.userInput = new Scanner(System.in);
     }
 
     public void run(){
-        boolean running = true;
-        while (running) {
+        while (true) {
             System.out.println("Welcome, what do you want to do?");
             System.out.println("1. Login\n2. Create account\n3. Exit");
             int input = Integer.parseInt(userInput.nextLine());
@@ -29,8 +33,7 @@ public class CommandLineInterface implements UserInterface{
                     break;
                 case 3:
                     System.out.println("Goodbye!");
-                    running = false;
-                    break;
+                    return;
                 default:
                     System.out.println("Invalid option selected.");
             }
@@ -48,67 +51,99 @@ public class CommandLineInterface implements UserInterface{
         System.out.println("Your password: ");
         String password = userInput.nextLine();
 
-        bankService.createAccount(
+        Try<Nothing> result = eventManager.publish(
+                anAuthenticationEvent(
+                        CREATE_ACCOUNT,
                         aUserAccount()
-                        .withFirstName(firstname)
-                        .withLastName(lastname)
-                        .withEmail(email)
-                        .withPassword(password)
-        );
+                                .withFirstName(firstname)
+                                .withLastName(lastname)
+                                .withEmail(email)
+                                .withPassword(password)
+        ));
+
+        if(result.isFailure()){
+            System.out.println("Failed to create account, please try again");
+            return;
+        }
+        System.out.println("Successfully created an account");
+
+
     }
 
     public void loginActionAndFollowUp() {
-        for (int attempts = 0; attempts < 3; ++attempts) {
-            System.out.println("Please login.");
-            System.out.println("Your username: ");
-            String email = userInput.nextLine();
-            System.out.println("Your password: ");
-            String password = userInput.nextLine();
-            if (bankService.loginToBankAccount(email, password) != null) {
-                int action;
-                do {
-//                    if (bank.isAccountDeleted()) {
-//                        return;
-//                    }
-                    options();
-                    action = Integer.parseInt(userInput.nextLine());
-                    chosenAction(action);
-                } while (action != 4);
-                return;
-            }
+        System.out.println("Please login.");
+        System.out.println("Your username: ");
+        String email = userInput.nextLine();
+        System.out.println("Your password: ");
+        String password = userInput.nextLine();
+
+        Try<Nothing> result = eventManager.publish(anAuthenticationEvent(
+                        LOGIN,
+                        aUserAccount()
+                                .withEmail(email)
+                                .withPassword(password)
+                )
+        );
+
+        if(result.isFailure()){
             System.out.println("Login failed. Please try again.");
+            return;
         }
-        System.out.println("Login failed after multiple attempts.");
+        System.out.println("Successfully created an account");
     }
 
     public void chosenAction(int action) {
         switch (action) {
             case 1:
-                System.out.println("Amount you would like to deposit:");
-                double depositAmount = Double.parseDouble(userInput.nextLine());
-                bankService.deposit(depositAmount);
+                deposit();
                 break;
             case 2:
-                System.out.println("Amount you would like to withdraw:");
-                double withdrawAmount = Double.parseDouble(userInput.nextLine());
-                bankService.withdraw(withdrawAmount);
+                withdraw();
                 break;
             case 3:
-                System.out.println("Are you sure you want to delete your account? (yes/no)");
-                String confirmation = userInput.nextLine();
-                if ("yes".equalsIgnoreCase(confirmation)) {
-                    bankService.deleteAccount();
-                } else {
-                    System.out.println("Account deletion cancelled.");
-                }
+                deleteAccount();
                 break;
             case 4:
-                System.out.println("Logged out successfully.");
-                bankService.logoutFromBankAccount();
+                logout();
                 break;
             default:
                 System.out.println("Invalid option selected.");
         }
+    }
+
+    private void logout() {
+        Try<Nothing> result = eventManager.publish(anAuthenticationEvent(LOGOUT));
+        if(result.isFailure()){
+            System.out.println("Blalballbbl");
+            return;
+        }
+
+        System.out.println("Logged out successfully.");
+    }
+
+    private void deleteAccount() {
+        System.out.println("Are you sure you want to delete your account? (yes/no)");
+        String confirmation = userInput.nextLine();
+
+        if(!confirmation.equalsIgnoreCase("yes")){
+            System.out.println("Account deletion cancelled.");
+            return;
+        }
+
+        Try<Nothing> result = eventManager.publish(anAuthenticationEvent(DELETE_ACCOUNT));
+
+    }
+
+    private void withdraw() {
+        System.out.println("Amount you would like to withdraw:");
+        double withdrawAmount = Double.parseDouble(userInput.nextLine());
+        Try<Nothing> result = eventManager.publish()
+    }
+
+    private void deposit() {
+        System.out.println("Amount you would like to deposit:");
+        double depositAmount = Double.parseDouble(userInput.nextLine());
+        Try<Nothing> result = eventManager.publish();
     }
 
     public void options() {

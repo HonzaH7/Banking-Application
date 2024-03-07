@@ -1,5 +1,6 @@
 package Banking.Application;
 
+import Utils.Nothing;
 import io.vavr.control.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static Banking.Application.Nothing.nothing;
+import static Utils.Nothing.nothing;
 //Nahradit Connection CONNECTION za ConnectionPool connectionPool;
 public class BankAccountRepositoryImp implements BankAccountRepository {
     private final Connection CONNECTION;
@@ -20,8 +21,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         this.CONNECTION = CONNECTION;
     }
 
-    @Override
-    public UserAccount loginToAccount(String email, String password) {
+    public UserAccount getAccount(String email, String password) {
         try {
             PreparedStatement loginStatement = CONNECTION
                     .prepareStatement("SELECT * FROM accounts WHERE email = ? AND password = ?");
@@ -44,7 +44,6 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         return null;
     }
 
-    @Override
     public Try<String> deleteAccount(UserAccount userAccount) {
         try {
             if (userAccount != null) {
@@ -64,12 +63,11 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         return Try.failure(new RuntimeException(String.valueOf(nothing()))); // idk
     }
 
-    private static boolean isAccountDeleted(PreparedStatement statement) throws SQLException {
+    private boolean isAccountDeleted(PreparedStatement statement) throws SQLException {
         return statement.executeUpdate() > 0;
     }
 
 
-    @Override
     public boolean doesAccountExist(String email) {
         try {
             PreparedStatement checkStatement = CONNECTION
@@ -88,7 +86,6 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         return resultSet.getInt(1) > 0;
     }
 
-    @Override
     public Try<Nothing> createAccount(UserAccount userAccount) {
         try {
             PreparedStatement statement = CONNECTION

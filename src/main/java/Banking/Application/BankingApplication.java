@@ -1,5 +1,6 @@
 package Banking.Application;
 
+import Utils.EventManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,7 +9,8 @@ public class BankingApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BankingApplication.class, args);
-		UserInterface userInterface = new CommandLineInterface();
+		EventManager eventManager = new EventManager();
+		UserInterface userInterface = new CommandLineInterface(eventManager);
 		userInterface.run();
 	}
 

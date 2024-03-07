@@ -1,12 +1,9 @@
 package Banking.Application;
 
+import Utils.Nothing;
 import io.vavr.control.Try;
 
 public interface BankAccountRepository {
-    UserAccount loginToAccount(String email, String password);
-    Try<String> deleteAccount(UserAccount userAccount);
-    boolean doesAccountExist(String username);
-    Try<Nothing> createAccount(UserAccount userAccount);
     Try<Nothing> depositFromUserAccount(double amount, UserAccount userAccount);
     Try<Nothing> withdrawFromUserAccount(double amount, UserAccount userAccount);
 
