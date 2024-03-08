@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 import static Authentication.AuthenticationEvent.Type.*;
 import static Authentication.AuthenticationEvent.anAuthenticationEvent;
+import static MoneyFlow.MoneyFlowEvent.Type.*;
+import static MoneyFlow.MoneyFlowEvent.aMoneyFlowEvent;
 import static Banking.Application.UserAccount.aUserAccount;
 
 public class CommandLineInterface implements UserInterface{
@@ -72,7 +74,7 @@ public class CommandLineInterface implements UserInterface{
 
     public void loginActionAndFollowUp() {
         System.out.println("Please login.");
-        System.out.println("Your username: ");
+        System.out.println("Your email: ");
         String email = userInput.nextLine();
         System.out.println("Your password: ");
         String password = userInput.nextLine();
@@ -86,10 +88,10 @@ public class CommandLineInterface implements UserInterface{
         );
 
         if(result.isFailure()){
-            System.out.println("Login failed. Please try again.");
+            System.out.println("Failed to login, please try again.");
             return;
         }
-        System.out.println("Successfully created an account");
+        System.out.println("Successfully logged in");
     }
 
     public void chosenAction(int action) {
@@ -137,13 +139,13 @@ public class CommandLineInterface implements UserInterface{
     private void withdraw() {
         System.out.println("Amount you would like to withdraw:");
         double withdrawAmount = Double.parseDouble(userInput.nextLine());
-        Try<Nothing> result = eventManager.publish();
+        Try<Nothing> result = eventManager.publish(aMoneyFlowEvent(WITHDRAW, withdrawAmount));
     }
 
     private void deposit() {
         System.out.println("Amount you would like to deposit:");
         double depositAmount = Double.parseDouble(userInput.nextLine());
-        Try<Nothing> result = eventManager.publish();
+        Try<Nothing> result = eventManager.publish(aMoneyFlowEvent(DEPOSIT, depositAmount));
     }
 
     public void options() {
