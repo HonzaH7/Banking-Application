@@ -24,11 +24,14 @@ public class AuthenticationEventHandler implements Subscriber<AuthenticationEven
         switch (event.getEventType()) {
             case CREATE_ACCOUNT:
                 authenticationService.createAccount(event.getUserAccount());
+                break;
             case LOGIN:
                 UserAccount userAccount = event.getUserAccount();
                 authenticationService.login(userAccount.getEmail(), userAccount.getPassword());
+                break;
             case LOGOUT:
                 authenticationService.logout();
+                break;
             default:
                 throw new NotImplementedError("Not implemented");
         }
