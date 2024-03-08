@@ -5,7 +5,8 @@ import io.vavr.control.Try;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
+
 
 import static Utils.Nothing.nothing;
 
@@ -29,9 +30,10 @@ public class EventManager {
 
         List<String> errors = subscribersToEvent.stream()
                 .map(subscriber -> publishToSubscriber(subscriber, event))
+                .filter(Objects::nonNull)
                 .toList();
 
-        if(errors.isEmpty()){
+        if(!errors.isEmpty()){
            return Try.failure(new RuntimeException("Publish failed: "  + String.join(",", errors)));
         }
 
