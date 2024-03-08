@@ -1,17 +1,22 @@
 package Authentication;
 
+import Banking.Application.DatabaseConnection;
 import Banking.Application.UserAccount;
 import Banking.Application.UserAccountManager;
 import io.vavr.NotImplementedError;
+import org.jooq.DSLContext;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class AuthenticationServiceImp implements AuthenticationService {
     private final Connection connection;
     private final UserAccountManager userAccountManager;
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationServiceImp(Connection connection, UserAccountManager userAccountManager) {
         this.connection = connection;
@@ -20,6 +25,22 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
     @Override
     public void createAccount(UserAccount userAccount) {
+//        try (Connection conn = DatabaseConnection.getConnection()) {
+//            DSLContext create = DSL.using(conn, SQLDialect.POSTGRES);
+//            Result<Record> result = create.select().from(accounts).fetch();
+//
+//            for (Record r : result) {
+//                String firstName = r.getValue(accounts.FIRST_NAME);
+//                String lastName = r.getValue(accounts.LAST_NAME);
+//
+//                System.out.println(" first name: " + firstName + " last name: " + lastName);
+//            }
+//        } catch (SQLException e) {
+//            logger.error("Nasdsa");
+//            e.printStackTrace();
+//            handleException(e);
+//        }
+
         try {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO accounts (firstName, lastName, email, password, balance) VALUES (?, ?, ?, ?, ?) ");
             statement.setString(1, userAccount.getFirstName());
@@ -29,9 +50,22 @@ public class AuthenticationServiceImp implements AuthenticationService {
             statement.setDouble(5, 0.0);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Username is already in use, please choose a different one.");
-            throw new RuntimeException(e);
+            logger.error("Username is already in use, please choose a different one.", e);
+            handleException(e);
         }
+    }
+
+    private void handleException(SQLException e) {
+        final String UNIQUE_VIOLATION_SQLSTATE = "23505";
+
+        String errorMessage;
+
+        if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+            errorMessage = "The data you are trying to insert already exists.";
+        } else {
+            errorMessage = "A database error occurred.";
+        }
+        throw new RuntimeException(errorMessage);
     }
 
     @Override

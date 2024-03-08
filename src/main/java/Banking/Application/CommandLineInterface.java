@@ -64,7 +64,7 @@ public class CommandLineInterface implements UserInterface{
         ));
 
         if(result.isFailure()){
-            System.out.println("Failed to create account, please try again");
+            System.out.println("Failed to create account: " + result.getCause().getMessage());
             return;
         }
         System.out.println("Successfully created an account");
