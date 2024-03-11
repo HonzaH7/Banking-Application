@@ -1,6 +1,6 @@
-package MoneyFlow;
+package moneyFlow;
 
-import Utils.Event;
+import utils.EventBroker.Event;
 
 public class MoneyFlowEvent implements Event {
     private final double amount;

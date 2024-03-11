@@ -1,9 +1,11 @@
 package Banking.Application;
 
-import Utils.Nothing;
+import userAccount.UserAccount;
+import userAccount.UserAccountManager;
+import utils.Nothing;
 import io.vavr.control.Try;
 
-import static Utils.Nothing.nothing;
+import static utils.Nothing.nothing;
 
 public class BankService {
     private final UserAccountManager userAccountManager;

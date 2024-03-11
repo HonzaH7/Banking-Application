@@ -1,6 +1,7 @@
 package Banking.Application;
 
-import Utils.Nothing;
+import userAccount.UserAccount;
+import utils.Nothing;
 import io.vavr.control.Try;
 
 public interface BankAccountRepository {

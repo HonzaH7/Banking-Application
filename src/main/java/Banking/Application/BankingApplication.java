@@ -1,9 +1,11 @@
 package Banking.Application;
 
-import Authentication.AuthenticationEventHandler;
-import Authentication.AuthenticationService;
-import Authentication.AuthenticationServiceImp;
-import Utils.EventManager;
+import authentication.AuthenticationEventHandler;
+import authentication.AuthenticationService;
+import authentication.AuthenticationServiceImp;
+import datasource.DataSourceBean;
+import userAccount.UserAccountManager;
+import utils.EventBroker.EventBroker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -15,11 +17,11 @@ public class BankingApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BankingApplication.class, args);
-		EventManager eventManager = new EventManager();
-		Connection connection = DatabaseConnection.getConnection();
-		AuthenticationService authenticationService = new AuthenticationServiceImp(connection, UserAccountManager.getInstance());
-		AuthenticationEventHandler authenticationEventHandler = new AuthenticationEventHandler(authenticationService, eventManager);
-		UserInterface userInterface = new CommandLineInterface(eventManager);
+		EventBroker eventBroker = new EventBroker();
+		DataSourceBean dataSourceBean = new DataSourceBean();
+		AuthenticationService authenticationService = new AuthenticationServiceImp(dataSourceBean, UserAccountManager.getInstance());
+		AuthenticationEventHandler authenticationEventHandler = new AuthenticationEventHandler(authenticationService, eventBroker);
+		UserInterface userInterface = new CommandLineInterface(eventBroker);
 		userInterface.run();
 	}
 

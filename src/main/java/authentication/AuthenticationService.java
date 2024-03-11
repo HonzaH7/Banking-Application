@@ -1,6 +1,6 @@
-package Authentication;
+package authentication;
 
-import Banking.Application.UserAccount;
+import userAccount.UserAccount;
 
 public interface AuthenticationService {
 

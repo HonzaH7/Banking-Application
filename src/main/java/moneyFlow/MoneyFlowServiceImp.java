@@ -1,7 +1,7 @@
-package MoneyFlow;
+package moneyFlow;
 
-import Banking.Application.UserAccount;
-import Banking.Application.UserAccountManager;
+import userAccount.UserAccount;
+import userAccount.UserAccountManager;
 import io.vavr.NotImplementedError;
 
 import java.sql.Connection;

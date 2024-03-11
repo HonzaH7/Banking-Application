@@ -1,25 +1,21 @@
-package Authentication;
+package authentication;
 
-import Banking.Application.DatabaseConnection;
-import Banking.Application.UserAccount;
-import Banking.Application.UserAccountManager;
+import datasource.DataSourceBean;
+import userAccount.UserAccount;
+import userAccount.UserAccountManager;
 import io.vavr.NotImplementedError;
-import org.jooq.DSLContext;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
 public class AuthenticationServiceImp implements AuthenticationService {
-    private final Connection connection;
+    private final DataSourceBean dataSourceBean;
     private final UserAccountManager userAccountManager;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
-    public AuthenticationServiceImp(Connection connection, UserAccountManager userAccountManager) {
-        this.connection = connection;
+    public AuthenticationServiceImp(DataSourceBean dataSourceBean, UserAccountManager userAccountManager) {
+        this.dataSourceBean = dataSourceBean;
         this.userAccountManager = userAccountManager;
     }
 

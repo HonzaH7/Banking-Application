@@ -1,4 +1,4 @@
-package Banking.Application;
+package userAccount;
 
 public class UserAccountManager {
 

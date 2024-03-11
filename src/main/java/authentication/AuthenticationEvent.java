@@ -1,7 +1,7 @@
-package Authentication;
+package authentication;
 
-import Banking.Application.UserAccount;
-import Utils.Event;
+import userAccount.UserAccount;
+import utils.EventBroker.Event;
 
 public class AuthenticationEvent implements Event {
 

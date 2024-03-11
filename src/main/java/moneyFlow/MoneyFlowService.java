@@ -1,4 +1,4 @@
-package MoneyFlow;
+package moneyFlow;
 
 public interface MoneyFlowService {
     void deposit(double amount);

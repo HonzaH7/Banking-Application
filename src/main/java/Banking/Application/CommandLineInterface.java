@@ -1,23 +1,23 @@
 package Banking.Application;
 
-import Utils.EventManager;
-import Utils.Nothing;
+import utils.EventBroker.EventBroker;
+import utils.Nothing;
 import io.vavr.control.Try;
 
 import java.util.Scanner;
 
-import static Authentication.AuthenticationEvent.Type.*;
-import static Authentication.AuthenticationEvent.anAuthenticationEvent;
-import static MoneyFlow.MoneyFlowEvent.Type.*;
-import static MoneyFlow.MoneyFlowEvent.aMoneyFlowEvent;
-import static Banking.Application.UserAccount.aUserAccount;
+import static authentication.AuthenticationEvent.Type.*;
+import static authentication.AuthenticationEvent.anAuthenticationEvent;
+import static moneyFlow.MoneyFlowEvent.Type.*;
+import static moneyFlow.MoneyFlowEvent.aMoneyFlowEvent;
+import static userAccount.UserAccount.aUserAccount;
 
 public class CommandLineInterface implements UserInterface{
     private final Scanner userInput;
-    private final EventManager eventManager;
+    private final EventBroker eventBroker;
 
-    public CommandLineInterface(EventManager eventManager){
-        this.eventManager = eventManager;
+    public CommandLineInterface(EventBroker eventBroker){
+        this.eventBroker = eventBroker;
         this.userInput = new Scanner(System.in);
     }
 
@@ -53,7 +53,7 @@ public class CommandLineInterface implements UserInterface{
         System.out.println("Your password: ");
         String password = userInput.nextLine();
 
-        Try<Nothing> result = eventManager.publish(
+        Try<Nothing> result = eventBroker.publish(
                 anAuthenticationEvent(
                         CREATE_ACCOUNT,
                         aUserAccount()
@@ -79,7 +79,7 @@ public class CommandLineInterface implements UserInterface{
         System.out.println("Your password: ");
         String password = userInput.nextLine();
 
-        Try<Nothing> result = eventManager.publish(anAuthenticationEvent(
+        Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(
                         LOGIN,
                         aUserAccount()
                                 .withEmail(email)
@@ -114,7 +114,7 @@ public class CommandLineInterface implements UserInterface{
     }
 
     private void logout() {
-        Try<Nothing> result = eventManager.publish(anAuthenticationEvent(LOGOUT));
+        Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(LOGOUT));
         if(result.isFailure()){
             System.out.println("Blalballbbl");
             return;
@@ -132,20 +132,20 @@ public class CommandLineInterface implements UserInterface{
             return;
         }
 
-        Try<Nothing> result = eventManager.publish(anAuthenticationEvent(DELETE_ACCOUNT));
+        Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(DELETE_ACCOUNT));
 
     }
 
     private void withdraw() {
         System.out.println("Amount you would like to withdraw:");
         double withdrawAmount = Double.parseDouble(userInput.nextLine());
-        Try<Nothing> result = eventManager.publish(aMoneyFlowEvent(WITHDRAW, withdrawAmount));
+        Try<Nothing> result = eventBroker.publish(aMoneyFlowEvent(WITHDRAW, withdrawAmount));
     }
 
     private void deposit() {
         System.out.println("Amount you would like to deposit:");
         double depositAmount = Double.parseDouble(userInput.nextLine());
-        Try<Nothing> result = eventManager.publish(aMoneyFlowEvent(DEPOSIT, depositAmount));
+        Try<Nothing> result = eventBroker.publish(aMoneyFlowEvent(DEPOSIT, depositAmount));
     }
 
     public void options() {

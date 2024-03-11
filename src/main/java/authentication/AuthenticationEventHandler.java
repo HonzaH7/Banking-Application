@@ -1,17 +1,17 @@
-package Authentication;
+package authentication;
 
-import Banking.Application.UserAccount;
-import Utils.EventManager;
-import Utils.Subscriber;
+import userAccount.UserAccount;
+import utils.EventBroker.EventBroker;
+import utils.EventBroker.Subscriber;
 import io.vavr.NotImplementedError;
 
 public class AuthenticationEventHandler implements Subscriber<AuthenticationEvent> {
 
     private final AuthenticationService authenticationService;
 
-    public AuthenticationEventHandler(AuthenticationService authenticationService, EventManager eventManager){
+    public AuthenticationEventHandler(AuthenticationService authenticationService, EventBroker eventBroker){
         this.authenticationService = authenticationService;
-        eventManager.subscribe(AuthenticationEvent.class, this);
+        eventBroker.subscribe(AuthenticationEvent.class, this);
     }
 
 

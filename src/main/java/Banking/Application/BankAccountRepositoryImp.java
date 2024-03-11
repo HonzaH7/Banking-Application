@@ -1,6 +1,7 @@
 package Banking.Application;
 
-import Utils.Nothing;
+import userAccount.UserAccount;
+import utils.Nothing;
 import io.vavr.control.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static Utils.Nothing.nothing;
+import static utils.Nothing.nothing;
 //Nahradit Connection CONNECTION za ConnectionPool connectionPool;
 public class BankAccountRepositoryImp implements BankAccountRepository {
     private final Connection CONNECTION;

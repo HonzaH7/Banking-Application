@@ -1,5 +1,6 @@
-package Utils;
+package utils.EventBroker;
 
+import utils.Nothing;
 import io.vavr.control.Try;
 
 import java.util.LinkedHashMap;
@@ -8,9 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
-import static Utils.Nothing.nothing;
+import static utils.Nothing.nothing;
 
-public class EventManager {
+public class EventBroker {
     private final Map<Class<? extends Event>, List<Subscriber<? extends Event>>> subscribersMap = new LinkedHashMap<>();
 
     public <T extends Event> void subscribe(Class<T> eventType, Subscriber<T> subscriber){
