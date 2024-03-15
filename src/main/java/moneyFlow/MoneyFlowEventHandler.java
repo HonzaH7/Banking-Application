@@ -22,8 +22,10 @@ public class MoneyFlowEventHandler implements Subscriber<MoneyFlowEvent> {
         switch (event.getEventType()) {
             case DEPOSIT:
                 moneyFlowService.deposit(event.getAmount());
+                break;
             case WITHDRAW:
                 moneyFlowService.withdraw(event.getAmount());
+                break;
             default:
                 throw new NotImplementedError("Not implemented");
         }
