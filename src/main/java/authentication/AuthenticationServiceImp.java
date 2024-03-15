@@ -1,92 +1,75 @@
 package authentication;
 
 import datasource.DataSourceBean;
-import org.jooq.DSLContext;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
+import org.jooq.*;
+import org.jooq.Record;
+import org.modelmapper.jooq.RecordValueReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import userAccount.UserAccount;
 import userAccount.UserAccountManager;
-import io.vavr.NotImplementedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
+import static jooq.classes.Tables.ACCOUNTS;
+import static userAccount.UserAccount.aUserAccount;
+
+import org.modelmapper.ModelMapper;
+import utils.SqlExceptionUtils;
+
 public class AuthenticationServiceImp implements AuthenticationService {
     private final DataSourceBean dataSourceBean;
+    @Autowired
+    private final ModelMapper modelMapper;
     private final UserAccountManager userAccountManager;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
-    public AuthenticationServiceImp(DataSourceBean dataSourceBean, UserAccountManager userAccountManager) {
+    public AuthenticationServiceImp(DataSourceBean dataSourceBean, ModelMapper modelMapper, UserAccountManager userAccountManager) {
         this.dataSourceBean = dataSourceBean;
+        this.modelMapper = modelMapper;
         this.userAccountManager = userAccountManager;
+        this.modelMapper.getConfiguration().addValueReader(new RecordValueReader());
     }
 
     @Override
     public void createAccount(UserAccount userAccount) {
         try (Connection conn = dataSourceBean.getConnection()) {
             DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
-            //TODO: vyřešit result
-            int result = create.insertInto(ACCOUNTS).set(userAccount).execute();
+            int result = create.insertInto(ACCOUNTS)
+                    .set(ACCOUNTS.FIRSTNAME, userAccount.getFirstName())
+                    .set(ACCOUNTS.LASTNAME, userAccount.getLastName())
+                    .set(ACCOUNTS.EMAIL, userAccount.getEmail())
+                    .set(ACCOUNTS.PASSWORD, userAccount.getPassword())
+                    .set(ACCOUNTS.BALANCE, 0.0)
+                    .execute();
+            if (result != 1) {
+                throw new SQLException("Failed to insert user account");
+            }
         } catch (SQLException e) {
-            logger.error("Nasdsa");
-            e.printStackTrace();
-            handleException(e);
+            logger.error("Create account failed", e);
+            SqlExceptionUtils.handleException(e);
         }
-
-//        try {
-//            PreparedStatement statement = connection.prepareStatement("INSERT INTO accounts (firstName, lastName, email, password, balance) VALUES (?, ?, ?, ?, ?) ");
-//            statement.setString(1, userAccount.getFirstName());
-//            statement.setString(2, userAccount.getLastName());
-//            statement.setString(3, userAccount.getEmail());
-//            statement.setString(4, userAccount.getPassword());
-//            statement.setDouble(5, 0.0);
-//            statement.executeUpdate();
-//        } catch (SQLException e) {
-//            logger.error("Username is already in use, please choose a different one.", e);
-//            handleException(e);
-//        }
     }
-
     @Override
     public void login(String email, String password) {
         try (Connection conn = dataSourceBean.getConnection()) {
             DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
-            Result<UserAccount> result = create
-                    .select(ACCOUNT)
-                    .from(ACCOUNTS)
-                    .where(ACCOUNT.email == email && ACCOUNT.password == password)
-                    .fetch();
 
-            if (result.isEmpty()) {
+            Record userAccountRecord = getUserAccountRecordByEmailAndPassword(email, password, create);
+
+            if (userAccountRecord == null) {
                 throw new RuntimeException("Requested user account does not exist.");
             }
-            userAccountManager.logUser(result.get(0));
-        } catch (SQLException e) {
-            logger.error("Nasdsa");
-            e.printStackTrace();
-            handleException(e);
-        }
 
-//        try {
-//            PreparedStatement statement = connection.prepareStatement("SELECT * FROM accounts WHERE email = ? AND password = ?");
-//            statement.setString(1, email);
-//            statement.setString(2, password);
-//            ResultSet resultSet = statement.executeQuery();
-//            if (resultSet.next()) {
-//                userAccountManager.logUser(UserAccount.aUserAccount()
-//                        .withFirstName(resultSet.getString("firstName"))
-//                        .withLastName(resultSet.getString("lastName"))
-//                        .withEmail(resultSet.getString("email"))
-//                        .withPassword(resultSet.getString("password"))
-//                        .withBalance(resultSet.getDouble("balance"))
-//                );
-//            }
-//        } catch (SQLException e) {
-//            //TODO: Error změnit na něco normálního
-//            throw new NotImplementedError("Not Implemented");
-//        }
+            UserAccount userAccount = mapRecordToUserAccount(userAccountRecord);
+
+            userAccountManager.logUser(userAccount);
+
+        } catch (SQLException e) {
+            logger.error("Login failed", e);
+            SqlExceptionUtils.handleException(e);
+        }
 
     }
 
@@ -95,16 +78,22 @@ public class AuthenticationServiceImp implements AuthenticationService {
         userAccountManager.logOut();
     }
 
-    private void handleException(SQLException e) {
-        final String UNIQUE_VIOLATION_SQLSTATE = "23505";
-
-        String errorMessage;
-
-        if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
-            errorMessage = "The data you are trying to insert already exists.";
-        } else {
-            errorMessage = "A database error occurred.";
-        }
-        throw new RuntimeException(errorMessage);
+    private UserAccount mapRecordToUserAccount(Record userAccountRecord) {
+        AuthenticationUser authenticationUser = this.modelMapper.map(userAccountRecord, AuthenticationUser.class);
+        return aUserAccount()
+                .withFirstName(authenticationUser.getFirstName())
+                .withLastName(authenticationUser.getLastName())
+                .withEmail(authenticationUser.getEmail())
+                .withPassword(authenticationUser.getPassword())
+                .withBalance(authenticationUser.getBalance());
     }
+
+    private Record getUserAccountRecordByEmailAndPassword(String email, String password, DSLContext create) {
+        return create
+                .select(ACCOUNTS.fields())
+                .from(ACCOUNTS)
+                .where(ACCOUNTS.EMAIL.eq(email).and(ACCOUNTS.PASSWORD.eq(password)))
+                .fetchOne();
+    }
+
 }
