@@ -128,7 +128,7 @@ public class CommandLineInterface implements UserInterface{
     private void logout() {
         Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(LOGOUT));
         if(result.isFailure()){
-            System.out.println("Blalballbbl");
+            System.out.println("See you later Alligator");
             return;
         }
 
@@ -175,7 +175,7 @@ public class CommandLineInterface implements UserInterface{
         Try<Nothing> result = eventBroker.publish(aMoneyFlowEvent(WITHDRAW, withdrawAmount));
 
         if (result.isFailure()) {
-            System.out.println("Something went wrong, please try again");
+            System.out.println("Insufficient funds or withdrawal failed. Please try again.");
             return;
         }
 
