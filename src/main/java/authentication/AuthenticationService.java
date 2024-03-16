@@ -8,7 +8,7 @@ public interface AuthenticationService {
 
     void login(String email, String password);
 
-    void deleteAccount(UserAccount userAccount);
+    void deleteAccount(UserAccount userAccount, String password);
 
     void logout();
 }

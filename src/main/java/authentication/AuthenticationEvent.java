@@ -9,17 +9,24 @@ public class AuthenticationEvent implements Event {
 
     private final Type eventType;
 
-    private AuthenticationEvent(Type eventType, UserAccount userAccount){
+    private final String password;
+
+
+    private AuthenticationEvent(Type eventType, String password, UserAccount userAccount){
         this.eventType = eventType;
+        this.password = password;
         this.userAccount = userAccount;
     }
 
     public static AuthenticationEvent anAuthenticationEvent(Type eventType, UserAccount userAccount){
-        return new AuthenticationEvent(eventType, userAccount);
+        return new AuthenticationEvent(eventType, null, userAccount);
+    }
+    public static AuthenticationEvent anAuthenticationEvent(Type eventType, String password){
+        return new AuthenticationEvent(eventType, password, null);
     }
 
     public static AuthenticationEvent anAuthenticationEvent(Type eventType){
-        return new AuthenticationEvent(eventType, null);
+        return new AuthenticationEvent(eventType, null, null);
     }
 
     public UserAccount getUserAccount() {
@@ -28,6 +35,10 @@ public class AuthenticationEvent implements Event {
 
     public Type getEventType() {
         return eventType;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public enum Type {

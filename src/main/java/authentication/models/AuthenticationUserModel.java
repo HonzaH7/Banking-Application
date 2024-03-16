@@ -1,56 +1,36 @@
 package authentication.models;
 
-import userAccount.UserAccount;
-
 public class AuthenticationUserModel {
     private final String email;
 
     private final String salt;
 
-    private AuthenticationUserModel(UserAccount.UserAccountBuilder builder) {
+    private AuthenticationUserModel(AuthenticationUserModelBuilder builder) {
         this.email = builder.email;
         this.salt = builder.salt;
     }
 
-    public static UserAccount aUserAccount() {
+    public static AuthenticationUserModel anAuthenticationUser() {
         return builder().build();
     }
-    private UserAccount.UserAccountBuilder toBuilder() {
-        return new UserAccount.UserAccountBuilder().
+    private AuthenticationUserModelBuilder toBuilder() {
+        return new AuthenticationUserModelBuilder().
                 fromInstance(this);
     }
 
-    private static UserAccount.UserAccountBuilder builder() {
-        return new UserAccount.UserAccountBuilder();
+    private static AuthenticationUserModelBuilder builder() {
+        return new AuthenticationUserModelBuilder();
     }
 
-    public UserAccount withFirstName(String firstName) {
+    public AuthenticationUserModel withAuthenticationEmail(String email) {
         return toBuilder()
-                .withFirstName(firstName)
+                .withAuthenticationEmail(email)
                 .build();
     }
 
-    public UserAccount withLastName(String lastName) {
+    public AuthenticationUserModel withSalt(String salt) {
         return toBuilder()
-                .withLastName(lastName)
-                .build();
-    }
-
-    public UserAccount withEmail(String email) {
-        return toBuilder()
-                .withEmail(email)
-                .build();
-    }
-
-    public UserAccount withPassword(String password) {
-        return toBuilder()
-                .withPassword(password)
-                .build();
-    }
-
-    public UserAccount withBalance(double balance) {
-        return toBuilder()
-                .withBalance(balance)
+                .withSalt(salt)
                 .build();
     }
 
@@ -58,60 +38,33 @@ public class AuthenticationUserModel {
         return email;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getSalt() {
+        return salt;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    private static class UserAccountBuilder {
-        private String firstName;
-        private String lastName;
+    private static class AuthenticationUserModelBuilder {
         private String email;
-        private String password;
-        private Double balance;
+        private String salt;
 
-        private UserAccount.UserAccountBuilder fromInstance(UserAccount userAccount) {
-            this.firstName = userAccount.firstName;
-            this.lastName = userAccount.lastName;
-            this.email = userAccount.email;
-            this.password = userAccount.password;
-            this.balance = userAccount.balance;
-            return this;
-        }
-        private UserAccount.UserAccountBuilder withFirstName(String firstName) {
-            this.firstName = firstName;
+        private AuthenticationUserModelBuilder fromInstance(AuthenticationUserModel authenticationUserModel) {
+            this.email = authenticationUserModel.email;
+            this.salt = authenticationUserModel.salt;
             return this;
         }
 
-        private UserAccount.UserAccountBuilder withLastName(String lastName) {
-            this.lastName = lastName;
-            return this;
-        }
-
-        private UserAccount.UserAccountBuilder withEmail(String email) {
+        private AuthenticationUserModelBuilder withAuthenticationEmail(String email) {
             this.email = email;
             return this;
         }
 
-        private UserAccount.UserAccountBuilder withPassword(String password) {
-            this.password = password;
+        private AuthenticationUserModelBuilder withSalt(String salt) {
+            this.salt = salt;
             return this;
         }
 
 
-        private UserAccount build() {
-            return new UserAccount(this);
+        private AuthenticationUserModel build() {
+            return new AuthenticationUserModel(this);
         }
 
     }

@@ -3,21 +3,15 @@ package authentication;
 import authentication.models.AuthenticationUserEntity;
 import authentication.models.AuthenticationUserModel;
 import datasource.DataSourceBean;
-import io.vavr.control.Try;
 import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import userAccount.UserAccount;
-import userAccount.UserAccountManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import userAccount.UserAccount;
+import userAccount.UserAccountManager;
 import userAccount.UserAccountRepository;
 import utils.Nothing;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.function.Function;
-
+import static authentication.models.AuthenticationUserModel.anAuthenticationUser;
 import static jooq.classes.Tables.ACCOUNTS;
 import static jooq.classes.Tables.AUTHENTICATION_ACCOUNTS;
 
@@ -46,8 +40,8 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Override
-    public void deleteAccount(UserAccount userAccount){
-        this.dataSourceBean.dslContext(dslContext -> this.doDelete(dslContext, userAccount));
+    public void deleteAccount(UserAccount userAccount, String password){
+        this.dataSourceBean.dslContext(dslContext -> this.doDelete(dslContext, userAccount, password));
     }
 
     @Override
@@ -63,17 +57,31 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 .set(ACCOUNTS.EMAIL, userAccount.getEmail())
                 .execute();
 
-        if(result != 1){
+        if(isFailure(result)){
             throw new RuntimeException("Failed to insert user account");
         }
 
         return Nothing.nothing();
     }
 
-    private Nothing doDelete(DSLContext dslContext, UserAccount userAccount) {
-        return null;
+    private Nothing doDelete(DSLContext dslContext, UserAccount userAccount, String password) {
+        if (!userAccount.getPassword().equals(password)) {
+            throw new RuntimeException("Incorrect password");
+        }
+        int result = dslContext.deleteFrom(ACCOUNTS)
+                .where(ACCOUNTS.EMAIL.eq(userAccount.getEmail()))
+                .execute();
+        if (isFailure(result)) {
+            throw new RuntimeException("Failed to delete user account");
+        }
+
+        return Nothing.nothing();
     }
 
+    private boolean isFailure(int result) {
+        return result != 1;
+    }
+    
     private Nothing doLogin(DSLContext dslContext, String email, String password) {
         AuthenticationUserEntity user =
                 dslContext.select(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, AUTHENTICATION_ACCOUNTS.SALT)

@@ -12,8 +12,6 @@ import utils.SqlExceptionUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static jooq.classes.tables.Accounts.ACCOUNTS;
-
 
 
 public class MoneyFlowServiceImp implements MoneyFlowService{

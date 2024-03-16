@@ -137,15 +137,10 @@ public class CommandLineInterface implements UserInterface{
     }
 
     private void deleteAccount() {
-        System.out.println("Are you sure you want to delete your account? (yes/no)");
-        String confirmation = userInput.nextLine();
+        System.out.println("Are you sure you want to delete your account? Please type your password");
+        String password = userInput.nextLine();
 
-        if(!confirmation.equalsIgnoreCase("yes")){
-            System.out.println("Account deletion cancelled.");
-            return;
-        }
-
-        Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(DELETE_ACCOUNT));
+        Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(DELETE_ACCOUNT, password));
 
         if (result.isFailure()) {
             System.out.println("Something went wrong, please try again");
