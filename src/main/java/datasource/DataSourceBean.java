@@ -4,17 +4,30 @@ import Banking.Application.DatabaseConnection;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import utils.Nothing;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.function.Function;
 
 public class DataSourceBean {
 
+    private final DatabaseConnection databaseConnection;
+
+    public DataSourceBean(DatabaseConnection databaseConnection){
+        this.databaseConnection = databaseConnection;
+    }
 
     public Connection getConnection(){
-        return DatabaseConnection.getConnection();
+        return this.databaseConnection.getConnection();
     };
 
-    public DSLContext getDSLContext(Connection connection, SQLDialect sqlDialect){
-        return DSL.using(connection, sqlDialect);
+    public void dslContext(Function<DSLContext, Nothing> function){
+        try (Connection conn = this.getConnection()) {
+            DSLContext create = DSL.using(conn, SQLDialect.POSTGRES);
+            function.apply(create);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -2,20 +2,19 @@ package moneyFlow;
 
 import datasource.DataSourceBean;
 import org.jooq.DSLContext;
-import org.jooq.Record1;
-import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import userAccount.UserAccount;
 import userAccount.UserAccountManager;
-import io.vavr.NotImplementedError;
 import utils.SqlExceptionUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static jooq.classes.Tables.ACCOUNTS;
+import static jooq.classes.tables.Accounts.ACCOUNTS;
+
+
 
 public class MoneyFlowServiceImp implements MoneyFlowService{
     private final DataSourceBean dataSourceBean;
@@ -69,30 +68,32 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
     }
 
     private int updateDepositedBalance(double amount, DSLContext create, UserAccount currentAccount) {
-        return create.update(ACCOUNTS)
-               .set(ACCOUNTS.BALANCE, ACCOUNTS.BALANCE.add(amount))
-               .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
-               .execute();
+//        return create.update(ACCOUNTS)
+//               .set(ACCOUNTS.BALANCE, ACCOUNTS.BALANCE.add(amount))
+//               .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
+//               .execute();
+        return 1;
     }
 
     private int updateWithdrewBalance(double amount, DSLContext create, UserAccount currentAccount) {
-        return create.update(ACCOUNTS)
-                .set(ACCOUNTS.BALANCE, ACCOUNTS.BALANCE.subtract(amount))
-                .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
-                .and(ACCOUNTS.BALANCE.greaterOrEqual(amount))
-                .execute();
+//        return create.update(ACCOUNTS)
+//                .set(ACCOUNTS.BALANCE, ACCOUNTS.BALANCE.subtract(amount))
+//                .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
+//                .and(ACCOUNTS.BALANCE.greaterOrEqual(amount))
+//                .execute();
+        return 1;
     }
 
     private void getUpdatedBalance(DSLContext create, UserAccount currentAccount) {
-        Result<Record1<Double>> result = create
-                .select(ACCOUNTS.BALANCE)
-                .from(ACCOUNTS)
-                .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
-                .fetch();
-
-        Double newBalance = result.get(0).value1();
-        System.out.println("Current balance [" + newBalance + "]");
-        currentAccount.withBalance(newBalance);
+//        Result<Record1<Double>> result = create
+//                .select(ACCOUNTS.BALANCE)
+//                .from(ACCOUNTS)
+//                .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
+//                .fetch();
+//
+//        Double newBalance = result.get(0).value1();
+//        System.out.println("Current balance [" + newBalance + "]");
+//        currentAccount.withBalance(newBalance);
     }
 
 }
