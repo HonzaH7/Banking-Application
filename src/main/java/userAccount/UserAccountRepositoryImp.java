@@ -18,12 +18,12 @@ public class UserAccountRepositoryImp implements UserAccountRepository {
     }
 
     @Override
-    public Try<Nothing> createAccount() {
+    public Try<Nothing> createAccount(UserAccount userAccount) {
         return null;
     }
 
     @Override
-    public Try<Nothing> deleteAccount() {
+    public Try<Nothing> deleteAccount(UserAccount userAccount) {
         return null;
     }
 }

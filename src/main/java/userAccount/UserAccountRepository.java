@@ -9,7 +9,7 @@ public interface UserAccountRepository {
 
     Optional<UserAccount> getAccount();
 
-    Try<Nothing> createAccount();
+    Try<Nothing> createAccount(UserAccount userAccount);
 
-    Try<Nothing> deleteAccount();
+    Try<Nothing> deleteAccount(UserAccount userAccount);
 }
