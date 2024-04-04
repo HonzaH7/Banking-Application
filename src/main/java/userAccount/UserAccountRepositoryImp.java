@@ -19,6 +19,11 @@ public class UserAccountRepositoryImp implements UserAccountRepository {
 
     @Override
     public Try<Nothing> createAccount(UserAccountModel userAccount) {
+        //        int result = dslContext.insertInto(ACCOUNTS)
+//                .set(ACCOUNTS.FIRST_NAME, userAccount.getFirstName())
+//                .set(ACCOUNTS.LAST_NAME, userAccount.getLastName())
+//                .set(ACCOUNTS.EMAIL, userAccount.getEmail())
+//                .execute();
         return null;
     }
 

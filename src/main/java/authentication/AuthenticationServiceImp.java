@@ -66,7 +66,9 @@ public class AuthenticationServiceImp implements AuthenticationService {
     @Transactional
     protected Nothing doCreateAccount(DSLContext dslContext, UserAccountModel userAccount) {
         byte[] salt = createSalt();
-        byte[] hashedPassword = hasher.hash(3, salt, userAccount.getPassword().getBytes(StandardCharsets.UTF_8));
+        byte[] hashedPassword = hasher.hash(4, salt, userAccount.getPassword().getBytes());
+
+        Try<Nothing> result =  userAccountRepository.createAccount(userAccount);
 
         int isAuthenticationAccountCreated = dslContext.insertInto(AUTHENTICATION_ACCOUNTS)
                 .set(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, userAccount.getEmail())
@@ -78,7 +80,6 @@ public class AuthenticationServiceImp implements AuthenticationService {
             throw new RuntimeException("Failed to create user account, please try again");
         }
 
-        Try<Nothing> result =  userAccountRepository.createAccount(userAccount);
 //        int result = dslContext.insertInto(ACCOUNTS)
 //                .set(ACCOUNTS.FIRST_NAME, userAccount.getFirstName())
 //                .set(ACCOUNTS.LAST_NAME, userAccount.getLastName())
@@ -122,11 +123,14 @@ public class AuthenticationServiceImp implements AuthenticationService {
             throw new RuntimeException("Wrong email or password, please try again");
         }
 
-        AuthenticationUserModel authenticationUserModel = anAuthenticationUser()
-                .withAuthenticationEmail(user.getEmail())
-                .withSalt(user.getEmail());
+        BCrypt.Verifyer verifyer = BCrypt.verifyer();
+        BCrypt.Result result = verifyer.verify(password.getBytes(), 4, user.getSalt().getBytes(), user.getPassword().getBytes());
 
-        userAccountManager.logUser(authenticationUserModel);
+//        AuthenticationUserModel authenticationUserModel = anAuthenticationUser()
+//                .withAuthenticationEmail(user.getEmail())
+//                .withSalt(user.getEmail());
+
+//        userAccountManager.logUser(authenticationUserModel);
 
         return Nothing.nothing();
     }

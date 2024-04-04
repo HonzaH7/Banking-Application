@@ -11,14 +11,14 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
 
-    @Value("${spring.datasource.url}")
-    private String URL;
+//    @Value("${spring.datasource.url}")
+    private String URL = "jdbc:postgresql://localhost:5432/BankingSystem";
 
-    @Value("${spring.datasource.username}")
-    private String USER;
+//    @Value("${spring.datasource.username}")
+    private String USER = "postgres";
 
-    @Value("${spring.datasource.password}")
-    private String PASSWORD;
+//    @Value("${spring.datasource.password}")
+    private String PASSWORD = "05011997";
     public Connection getConnection() {
         try {
             return DriverManager.getConnection(URL, USER, PASSWORD);

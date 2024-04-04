@@ -27,34 +27,34 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
 
     @Override
     public void deposit(double amount) {
-        UserAccountModel currentAccount = userAccountManager.getLoggedUser();
-
-        try (Connection conn = dataSourceBean.getConnection()) {
-            DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
-
-            if (isDepositSuccessful(amount, create, currentAccount)) {
-                getUpdatedBalance(create, currentAccount);
-            }
-        } catch (SQLException e) {
-            logger.error("Deposit failed", e);
-            SqlExceptionUtils.handleException(e);
-        }
+//        UserAccountModel currentAccount = userAccountManager.getLoggedUser();
+//
+//        try (Connection conn = dataSourceBean.getConnection()) {
+//            DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
+//
+//            if (isDepositSuccessful(amount, create, currentAccount)) {
+//                getUpdatedBalance(create, currentAccount);
+//            }
+//        } catch (SQLException e) {
+//            logger.error("Deposit failed", e);
+//            SqlExceptionUtils.handleException(e);
+//        }
     }
 
     @Override
     public void withdraw(double amount) {
-        UserAccountModel currentAccount = userAccountManager.getLoggedUser();
-        try (Connection conn = dataSourceBean.getConnection()) {
-            DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
-
-            if (isSuccessfulWithdraw(amount, create, currentAccount)) {
-                getUpdatedBalance(create, currentAccount);
-            } else {
-                throw new RuntimeException("Insufficient funds or withdrawal failed.");
-            }
-        } catch (SQLException e) {
-            SqlExceptionUtils.handleException(e);
-        }
+//        UserAccountModel currentAccount = userAccountManager.getLoggedUser();
+//        try (Connection conn = dataSourceBean.getConnection()) {
+//            DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
+//
+//            if (isSuccessfulWithdraw(amount, create, currentAccount)) {
+//                getUpdatedBalance(create, currentAccount);
+//            } else {
+//                throw new RuntimeException("Insufficient funds or withdrawal failed.");
+//            }
+//        } catch (SQLException e) {
+//            SqlExceptionUtils.handleException(e);
+//        }
     }
 
     private boolean isDepositSuccessful(double amount, DSLContext create, UserAccountModel currentAccount) {
