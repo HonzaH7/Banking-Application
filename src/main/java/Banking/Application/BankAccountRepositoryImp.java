@@ -1,6 +1,6 @@
 package Banking.Application;
 
-import userAccount.UserAccount;
+import userAccount.UserAccountModel;
 import utils.Nothing;
 import io.vavr.control.Try;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         this.CONNECTION = CONNECTION;
     }
 
-    public UserAccount getAccount(String email, String password) {
+    public UserAccountModel getAccount(String email, String password) {
         try {
             PreparedStatement loginStatement = CONNECTION
                     .prepareStatement("SELECT * FROM accounts WHERE email = ? AND password = ?");
@@ -30,7 +30,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
             loginStatement.setString(2, password);
             ResultSet resultSet = loginStatement.executeQuery();
             if (resultSet.next()) {
-                return UserAccount
+                return UserAccountModel
                         .aUserAccount()
                         .withFirstName(resultSet.getString("firstName"))
                         .withLastName(resultSet.getString("lastName"))
@@ -45,7 +45,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         return null;
     }
 
-    public Try<String> deleteAccount(UserAccount userAccount) {
+    public Try<String> deleteAccount(UserAccountModel userAccount) {
         try {
             if (userAccount != null) {
                 PreparedStatement statement = CONNECTION.prepareStatement("DELETE FROM accounts WHERE email = ? AND password = ?");
@@ -87,7 +87,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
         return resultSet.getInt(1) > 0;
     }
 
-    public Try<Nothing> createAccount(UserAccount userAccount) {
+    public Try<Nothing> createAccount(UserAccountModel userAccount) {
         try {
             PreparedStatement statement = CONNECTION
                     .prepareStatement("INSERT INTO accounts (firstName, lastName, email, password) VALUES (?, ?, ?, ?)");
@@ -104,7 +104,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
     }
 
     @Override
-    public Try<Nothing> depositFromUserAccount(double amount, UserAccount userAccount) {
+    public Try<Nothing> depositFromUserAccount(double amount, UserAccountModel userAccount) {
         try {
             PreparedStatement statement = CONNECTION.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE email = ?");
             statement.setDouble(1, amount);
@@ -144,7 +144,7 @@ public class BankAccountRepositoryImp implements BankAccountRepository {
     }
 
     @Override
-    public Try<Nothing> withdrawFromUserAccount(double amount, UserAccount userAccount) {
+    public Try<Nothing> withdrawFromUserAccount(double amount, UserAccountModel userAccount) {
         try {
             PreparedStatement statement = CONNECTION.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE email = ? AND balance >= ?");
             statement.setDouble(1, amount);

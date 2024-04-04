@@ -1,14 +1,16 @@
 package authentication;
 
-import userAccount.UserAccount;
+import authentication.models.AuthenticationUserModel;
+import userAccount.UserAccountModel;
+import utils.Updatable;
 
-public interface AuthenticationService {
+public interface AuthenticationService extends Updatable<AuthenticationUserModel> {
 
-    void createAccount(UserAccount userAccount);
+    void createAccount(UserAccountModel userAccount);
 
     void login(String email, String password);
 
-    void deleteAccount(UserAccount userAccount, String password);
+    void deleteAccount(UserAccountModel userAccount, String password);
 
     void logout();
 }

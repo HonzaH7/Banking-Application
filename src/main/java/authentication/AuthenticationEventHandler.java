@@ -1,6 +1,6 @@
 package authentication;
 
-import userAccount.UserAccount;
+import userAccount.UserAccountModel;
 import utils.EventBroker.EventBroker;
 import utils.EventBroker.Subscriber;
 import io.vavr.NotImplementedError;
@@ -26,7 +26,7 @@ public class AuthenticationEventHandler implements Subscriber<AuthenticationEven
                 authenticationService.createAccount(event.getUserAccount());
                 break;
             case LOGIN:
-                UserAccount userAccount = event.getUserAccount();
+                UserAccountModel userAccount = event.getUserAccount();
                 authenticationService.login(userAccount.getEmail(), userAccount.getPassword());
                 break;
             case LOGOUT:

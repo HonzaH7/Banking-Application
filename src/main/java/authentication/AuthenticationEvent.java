@@ -1,24 +1,24 @@
 package authentication;
 
-import userAccount.UserAccount;
+import userAccount.UserAccountModel;
 import utils.EventBroker.Event;
 
 public class AuthenticationEvent implements Event {
 
-    private final UserAccount userAccount;
+    private final UserAccountModel userAccount;
 
     private final Type eventType;
 
     private final String password;
 
 
-    private AuthenticationEvent(Type eventType, String password, UserAccount userAccount){
+    private AuthenticationEvent(Type eventType, String password, UserAccountModel userAccount){
         this.eventType = eventType;
         this.password = password;
         this.userAccount = userAccount;
     }
 
-    public static AuthenticationEvent anAuthenticationEvent(Type eventType, UserAccount userAccount){
+    public static AuthenticationEvent anAuthenticationEvent(Type eventType, UserAccountModel userAccount){
         return new AuthenticationEvent(eventType, null, userAccount);
     }
     public static AuthenticationEvent anAuthenticationEvent(Type eventType, String password){
@@ -29,7 +29,7 @@ public class AuthenticationEvent implements Event {
         return new AuthenticationEvent(eventType, null, null);
     }
 
-    public UserAccount getUserAccount() {
+    public UserAccountModel getUserAccount() {
         return userAccount;
     }
 

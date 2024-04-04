@@ -9,21 +9,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UserAccountRepositoryImp implements UserAccountRepository {
 
-    private final Map<Long, UserAccount> userAccounts = new ConcurrentHashMap<>();
+    private final Map<Long, UserAccountModel> userAccounts = new ConcurrentHashMap<>();
 //    private final DataSource
 
     @Override
-    public Optional<UserAccount> getAccount() {
+    public Optional<UserAccountModel> getAccount() {
         return Optional.empty();
     }
 
     @Override
-    public Try<Nothing> createAccount(UserAccount userAccount) {
+    public Try<Nothing> createAccount(UserAccountModel userAccount) {
         return null;
     }
 
     @Override
-    public Try<Nothing> deleteAccount(UserAccount userAccount) {
+    public Try<Nothing> deleteAccount(UserAccountModel userAccount) {
         return null;
+    }
+
+    @Override
+    public void update(UserAccountModel entity) {
+
     }
 }

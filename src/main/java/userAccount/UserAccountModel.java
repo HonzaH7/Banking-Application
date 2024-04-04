@@ -1,6 +1,6 @@
 package userAccount;
 
-public class UserAccount {
+public class UserAccountModel {
 
     private final String firstName;
     private final String lastName;
@@ -10,7 +10,7 @@ public class UserAccount {
     private final String password;
     private final Double balance;
 
-    private UserAccount(UserAccountBuilder builder) {
+    private UserAccountModel(UserAccountBuilder builder) {
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.email = builder.email;
@@ -18,7 +18,7 @@ public class UserAccount {
         this.balance = builder.balance;
     }
 
-    public static UserAccount aUserAccount() {
+    public static UserAccountModel aUserAccount() {
         return builder().build();
     }
     private UserAccountBuilder toBuilder() {
@@ -30,31 +30,31 @@ public class UserAccount {
         return new UserAccountBuilder();
     }
 
-    public UserAccount withFirstName(String firstName) {
+    public UserAccountModel withFirstName(String firstName) {
         return toBuilder()
                 .withFirstName(firstName)
                 .build();
     }
 
-    public UserAccount withLastName(String lastName) {
+    public UserAccountModel withLastName(String lastName) {
         return toBuilder()
                 .withLastName(lastName)
                 .build();
     }
 
-    public UserAccount withEmail(String email) {
+    public UserAccountModel withEmail(String email) {
         return toBuilder()
                 .withEmail(email)
                 .build();
     }
 
-    public UserAccount withPassword(String password) {
+    public UserAccountModel withPassword(String password) {
         return toBuilder()
                 .withPassword(password)
                 .build();
     }
 
-    public UserAccount withBalance(double balance) {
+    public UserAccountModel withBalance(double balance) {
         return toBuilder()
                 .withBalance(balance)
                 .build();
@@ -87,7 +87,7 @@ public class UserAccount {
         private String password;
         private Double balance;
 
-        private UserAccountBuilder fromInstance(UserAccount userAccount) {
+        private UserAccountBuilder fromInstance(UserAccountModel userAccount) {
             this.firstName = userAccount.firstName;
             this.lastName = userAccount.lastName;
             this.email = userAccount.email;
@@ -120,8 +120,8 @@ public class UserAccount {
             return this;
         }
 
-        private UserAccount build() {
-            return new UserAccount(this);
+        private UserAccountModel build() {
+            return new UserAccountModel(this);
         }
 
     }

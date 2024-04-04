@@ -2,14 +2,15 @@ package userAccount;
 
 import utils.Nothing;
 import io.vavr.control.Try;
+import utils.Updatable;
 
 import java.util.Optional;
 
-public interface UserAccountRepository {
+public interface UserAccountRepository extends Updatable<UserAccountModel> {
 
-    Optional<UserAccount> getAccount();
+    Optional<UserAccountModel> getAccount();
 
-    Try<Nothing> createAccount(UserAccount userAccount);
+    Try<Nothing> createAccount(UserAccountModel userAccount);
 
-    Try<Nothing> deleteAccount(UserAccount userAccount);
+    Try<Nothing> deleteAccount(UserAccountModel userAccount);
 }

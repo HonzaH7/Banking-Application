@@ -5,7 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import userAccount.UserAccount;
+import userAccount.UserAccountModel;
 import userAccount.UserAccountManager;
 import utils.SqlExceptionUtils;
 
@@ -27,7 +27,7 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
 
     @Override
     public void deposit(double amount) {
-        UserAccount currentAccount = userAccountManager.getLoggedUser();
+        UserAccountModel currentAccount = userAccountManager.getLoggedUser();
 
         try (Connection conn = dataSourceBean.getConnection()) {
             DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
@@ -43,7 +43,7 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
 
     @Override
     public void withdraw(double amount) {
-        UserAccount currentAccount = userAccountManager.getLoggedUser();
+        UserAccountModel currentAccount = userAccountManager.getLoggedUser();
         try (Connection conn = dataSourceBean.getConnection()) {
             DSLContext create = dataSourceBean.getDSLContext(conn, SQLDialect.POSTGRES);
 
@@ -57,15 +57,15 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
         }
     }
 
-    private boolean isDepositSuccessful(double amount, DSLContext create, UserAccount currentAccount) {
+    private boolean isDepositSuccessful(double amount, DSLContext create, UserAccountModel currentAccount) {
         return updateDepositedBalance(amount, create, currentAccount) > 0;
     }
 
-    private boolean isSuccessfulWithdraw(double amount, DSLContext create, UserAccount currentAccount) {
+    private boolean isSuccessfulWithdraw(double amount, DSLContext create, UserAccountModel currentAccount) {
         return updateWithdrewBalance(amount, create, currentAccount) > 0;
     }
 
-    private int updateDepositedBalance(double amount, DSLContext create, UserAccount currentAccount) {
+    private int updateDepositedBalance(double amount, DSLContext create, UserAccountModel currentAccount) {
 //        return create.update(ACCOUNTS)
 //               .set(ACCOUNTS.BALANCE, ACCOUNTS.BALANCE.add(amount))
 //               .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
@@ -73,7 +73,7 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
         return 1;
     }
 
-    private int updateWithdrewBalance(double amount, DSLContext create, UserAccount currentAccount) {
+    private int updateWithdrewBalance(double amount, DSLContext create, UserAccountModel currentAccount) {
 //        return create.update(ACCOUNTS)
 //                .set(ACCOUNTS.BALANCE, ACCOUNTS.BALANCE.subtract(amount))
 //                .where(ACCOUNTS.EMAIL.eq(currentAccount.getEmail()))
@@ -82,7 +82,7 @@ public class MoneyFlowServiceImp implements MoneyFlowService{
         return 1;
     }
 
-    private void getUpdatedBalance(DSLContext create, UserAccount currentAccount) {
+    private void getUpdatedBalance(DSLContext create, UserAccountModel currentAccount) {
 //        Result<Record1<Double>> result = create
 //                .select(ACCOUNTS.BALANCE)
 //                .from(ACCOUNTS)

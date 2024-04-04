@@ -3,7 +3,7 @@ package userAccount;
 public class UserAccountManager {
 
     private static UserAccountManager instance;
-    private UserAccount currentUser;
+    private UserAccountModel currentUser;
 
     public static synchronized UserAccountManager getInstance() {
         if (instance == null) {
@@ -13,11 +13,11 @@ public class UserAccountManager {
     }
 
     private UserAccountManager(){};
-    public UserAccount getLoggedUser(){
+    public UserAccountModel getLoggedUser(){
         return currentUser;
     }
 
-    public void logUser(UserAccount userAccount){
+    public void logUser(UserAccountModel userAccount){
         this.currentUser = userAccount;
     }
 

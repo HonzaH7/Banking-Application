@@ -5,12 +5,13 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import authentication.models.AuthenticationUserEntity;
 import authentication.models.AuthenticationUserModel;
 import datasource.DataSourceBean;
+import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import userAccount.UserAccount;
+import userAccount.UserAccountModel;
 import userAccount.UserAccountManager;
 import userAccount.UserAccountRepository;
 import utils.Nothing;
@@ -43,7 +44,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Override
-    public void createAccount(UserAccount userAccount) {
+    public void createAccount(UserAccountModel userAccount) {
         this.dataSourceBean.dslContext(dslContext -> this.doCreateAccount(dslContext, userAccount));
     }
 
@@ -53,7 +54,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Override
-    public void deleteAccount(UserAccount userAccount, String password){
+    public void deleteAccount(UserAccountModel userAccount, String password){
         this.dataSourceBean.dslContext(dslContext -> this.doDelete(dslContext, userAccount, password));
     }
 
@@ -63,7 +64,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Transactional
-    protected Nothing doCreateAccount(DSLContext dslContext, UserAccount userAccount) {
+    protected Nothing doCreateAccount(DSLContext dslContext, UserAccountModel userAccount) {
         byte[] salt = createSalt();
         byte[] hashedPassword = hasher.hash(3, salt, userAccount.getPassword().getBytes(StandardCharsets.UTF_8));
 
@@ -92,7 +93,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
        return Bytes.random(16, this.secureRandom).array();
     }
 
-    private Nothing doDelete(DSLContext dslContext, UserAccount userAccount, String password) {
+    private Nothing doDelete(DSLContext dslContext, UserAccountModel userAccount, String password) {
         if (!userAccount.getPassword().equals(password)) {
             throw new RuntimeException("Incorrect password");
         }
@@ -130,4 +131,8 @@ public class AuthenticationServiceImp implements AuthenticationService {
         return Nothing.nothing();
     }
 
+    @Override
+    public void update(AuthenticationUserModel entity) {
+        throw new NotImplementedError("Not implemented");
+    }
 }

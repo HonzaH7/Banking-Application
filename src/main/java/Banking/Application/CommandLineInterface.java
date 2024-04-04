@@ -10,7 +10,7 @@ import static authentication.AuthenticationEvent.Type.*;
 import static authentication.AuthenticationEvent.anAuthenticationEvent;
 import static moneyFlow.MoneyFlowEvent.Type.*;
 import static moneyFlow.MoneyFlowEvent.aMoneyFlowEvent;
-import static userAccount.UserAccount.aUserAccount;
+import static userAccount.UserAccountModel.aUserAccount;
 
 public class CommandLineInterface implements UserInterface{
     private final Scanner userInput;

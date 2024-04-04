@@ -1,6 +1,6 @@
 package Banking.Application;
 
-import userAccount.UserAccount;
+import userAccount.UserAccountModel;
 import userAccount.UserAccountManager;
 import utils.Nothing;
 import io.vavr.control.Try;
@@ -18,7 +18,7 @@ public class BankService {
 
 
     public Try<Nothing> deposit(double amount) {
-        UserAccount userAccount = userAccountManager.getLoggedUser();
+        UserAccountModel userAccount = userAccountManager.getLoggedUser();
 
         if (userAccount == null) {
             return Try.failure(new RuntimeException(("No user is currently logged in.")));
@@ -30,7 +30,7 @@ public class BankService {
     }
 
     public Try<Nothing> withdraw(double amount) {
-        UserAccount userAccount = userAccountManager.getLoggedUser();
+        UserAccountModel userAccount = userAccountManager.getLoggedUser();
 
         if(userAccount == null){
             return Try.failure(new RuntimeException(("No user is currently logged in.")));
