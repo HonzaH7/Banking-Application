@@ -98,7 +98,6 @@ class BankingApplicationTests {
 		);
 	}
 
-
 	private void whenApplicationStart() {
 		this.commandLineInterface.run();
 	}
