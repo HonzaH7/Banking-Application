@@ -104,7 +104,7 @@ public class CommandLineInterface implements UserInterface{
             systemService.println("Failed to login, please try again: [" + result.getCause().getMessage() + "]");
             return;
         }
-        systemService.println("Successfully logged in");
+        systemService.println("Successfully logged in.");
         isLoggedIn = true;
     }
 
@@ -131,6 +131,7 @@ public class CommandLineInterface implements UserInterface{
                 break;
             case 5:
                 systemService.println("Goodbye!");
+                logout();
                 return;
             default:
                 systemService.println("Invalid option selected.");

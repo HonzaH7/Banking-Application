@@ -32,6 +32,23 @@ class BankingApplicationTests {
 		this.systemServiceStub = new SystemServiceStub();
 		this.commandLineInterface = new CommandLineInterface(eventBrokerStub, systemServiceStub);
 	}
+	@Test
+	public void shouldLoginWhenPublishFails(){
+		givenNoLoggedUser();
+		givenTerminalAnswersInLoggedPhase(TerminalOption.LOGIN, "email@email.com", "password");
+
+		whenApplicationStart();
+
+		verifyEventPublished(
+				anAuthenticationEvent(AuthenticationEvent.Type.LOGIN,
+						aUserAccount()
+								.withEmail("email@email.com")
+								.withPassword("password")
+				)
+		);
+
+		verifyOutputPrintedToTerminal("Successfully logged in.");
+	}
 
 	@Test
 	public void shouldNotLoginWhenPublishFails(){
@@ -64,7 +81,7 @@ class BankingApplicationTests {
 	}
 
 	@Test
-	public void shouldPublishToEventBrokerWhenAllAccountIsCreated(){
+	public void shouldCreateAnAccount(){
 		givenNoLoggedUser();
 		givenTerminalAnswers(TerminalOption.CREATE_ACCOUNT, "firstName", "lastName", "email@email.com", "password");
 
@@ -81,6 +98,7 @@ class BankingApplicationTests {
 		);
 	}
 
+
 	private void whenApplicationStart() {
 		this.commandLineInterface.run();
 	}
@@ -90,6 +108,15 @@ class BankingApplicationTests {
 				.toArray(String[]::new);
 
 		String concatenatedAnswer = String.join("\n", allParamsWithNumber) + "\n3";
+
+		this.systemServiceStub.setInput(new ByteArrayInputStream(concatenatedAnswer.getBytes()));
+	}
+
+	private void givenTerminalAnswersInLoggedPhase(TerminalOption option, String ...parameters) {
+		String[] allParamsWithNumber = Stream.concat(Stream.of(String.valueOf(option.getInputNumber())), Arrays.stream(parameters))
+				.toArray(String[]::new);
+
+		String concatenatedAnswer = String.join("\n", allParamsWithNumber) + "\n5" +"\n3";
 
 		this.systemServiceStub.setInput(new ByteArrayInputStream(concatenatedAnswer.getBytes()));
 	}
