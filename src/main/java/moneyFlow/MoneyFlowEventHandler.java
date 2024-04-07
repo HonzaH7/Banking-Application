@@ -1,6 +1,6 @@
 package moneyFlow;
 
-import utils.EventBroker.EventBroker;
+import utils.EventBroker.EventBrokerImp;
 import utils.EventBroker.Subscriber;
 import io.vavr.NotImplementedError;
 
@@ -8,9 +8,9 @@ public class MoneyFlowEventHandler implements Subscriber<MoneyFlowEvent> {
 
     private final MoneyFlowService moneyFlowService;
 
-    public MoneyFlowEventHandler(MoneyFlowService moneyFlowService, EventBroker eventBroker) {
+    public MoneyFlowEventHandler(MoneyFlowService moneyFlowService, EventBrokerImp eventBrokerImp) {
         this.moneyFlowService = moneyFlowService;
-        eventBroker.subscribe(MoneyFlowEvent.class, this);
+        eventBrokerImp.subscribe(MoneyFlowEvent.class, this);
     }
 
     @Override

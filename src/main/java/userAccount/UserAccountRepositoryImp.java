@@ -27,16 +27,13 @@ public class UserAccountRepositoryImp implements UserAccountRepository {
     }
 
     @Override
-    public Optional<UserAccountModel> getAccountByEmail(String email) {
-        this.dataSourceBean.dslContext(dslContext -> this.doGetAccountByEmail(dslContext, email));
-
-        return Optional.of(aUserAccount());
+    public UserAccountModel getAccountByEmail(String email) {
+        return this.dataSourceBean.dslContext(dslContext -> this.doGetAccountByEmail(dslContext, email));
     }
 
     @Override
-    public Try<Nothing> createAccount(UserAccountModel userAccount) {
+    public void createAccount(UserAccountModel userAccount) {
         this.dataSourceBean.dslContext(dslContext -> this.doCreateAccount(dslContext, userAccount));
-        return null;
     }
 
     private Nothing doCreateAccount(DSLContext dslContext, UserAccountModel userAccount) {
@@ -53,12 +50,19 @@ public class UserAccountRepositoryImp implements UserAccountRepository {
         return Nothing.nothing();
     }
 
-    private Nothing doGetAccountByEmail(DSLContext dslContext, String email) {
-        dslContext.select(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, AUTHENTICATION_ACCOUNTS.SALT, AUTHENTICATION_ACCOUNTS.PASSWORD)
+    private UserAccountModel doGetAccountByEmail(DSLContext dslContext, String email) {
+        UserAccountEntity userAccount = dslContext.select(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, AUTHENTICATION_ACCOUNTS.SALT, AUTHENTICATION_ACCOUNTS.PASSWORD)
                 .from(AUTHENTICATION_ACCOUNTS)
                 .where(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL.eq(email))
-                .fetchOneInto(AuthenticationUserModel.class);
+                .fetchOneInto(UserAccountEntity.class);
 
+        if(userAccount == null){
+            throw new RuntimeException("Account does not exist");
+        }
+
+        return aUserAccount().withEmail(userAccount.getEmail())
+                .withFirstName(userAccount.getFirstName())
+                .withLastName(userAccount.getLastName());
     }
 
     @Override

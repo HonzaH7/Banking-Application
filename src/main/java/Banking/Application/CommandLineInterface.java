@@ -1,8 +1,10 @@
 package Banking.Application;
 
+import userAccount.UserAccountManager;
 import utils.EventBroker.EventBroker;
 import utils.Nothing;
 import io.vavr.control.Try;
+import utils.SystemService;
 
 import java.util.Scanner;
 
@@ -13,16 +15,22 @@ import static moneyFlow.MoneyFlowEvent.aMoneyFlowEvent;
 import static userAccount.UserAccountModel.aUserAccount;
 
 public class CommandLineInterface implements UserInterface{
-    private final Scanner userInput;
+    private Scanner userInput;
     private final EventBroker eventBroker;
+
+    private final SystemService systemService;
     private boolean isLoggedIn = false;
 
-    public CommandLineInterface(EventBroker eventBroker){
+
+    public CommandLineInterface(EventBroker eventBroker, SystemService systemService){
         this.eventBroker = eventBroker;
-        this.userInput = new Scanner(System.in);
+        this.systemService = systemService;
+//        this.isLoggedIn = userAccountManager.getLoggedUser() != null;
     }
 
     public void run(){
+        this.userInput = new Scanner(systemService.getInput());
+
         while (true) {
             if (isLoggedIn) {
                 afterLoginOptions();
@@ -47,7 +55,7 @@ public class CommandLineInterface implements UserInterface{
         }
     }
 
-    public void createAnAccount() {
+    private void createAnAccount() {
         System.out.println("Please create an account.");
         System.out.println("Your firstname: ");
         String firstname = userInput.nextLine();
@@ -77,7 +85,7 @@ public class CommandLineInterface implements UserInterface{
 
     }
 
-    public void loginActionAndFollowUp() {
+    private void loginActionAndFollowUp() {
         System.out.println("Please login.");
         System.out.println("Your email: ");
         String email = userInput.nextLine();
@@ -100,7 +108,7 @@ public class CommandLineInterface implements UserInterface{
         isLoggedIn = true;
     }
 
-    public void afterLoginOptions() {
+    private void afterLoginOptions() {
         System.out.println("What action do you want to do?");
         System.out.println("1. Deposit money");
         System.out.println("2. Withdraw money");

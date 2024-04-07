@@ -1,7 +1,7 @@
 package authentication;
 
 import userAccount.UserAccountModel;
-import utils.EventBroker.EventBroker;
+import utils.EventBroker.EventBrokerImp;
 import utils.EventBroker.Subscriber;
 import io.vavr.NotImplementedError;
 
@@ -9,9 +9,9 @@ public class AuthenticationEventHandler implements Subscriber<AuthenticationEven
 
     private final AuthenticationService authenticationService;
 
-    public AuthenticationEventHandler(AuthenticationService authenticationService, EventBroker eventBroker){
+    public AuthenticationEventHandler(AuthenticationService authenticationService, EventBrokerImp eventBrokerImp){
         this.authenticationService = authenticationService;
-        eventBroker.subscribe(AuthenticationEvent.class, this);
+        eventBrokerImp.subscribe(AuthenticationEvent.class, this);
     }
 
 

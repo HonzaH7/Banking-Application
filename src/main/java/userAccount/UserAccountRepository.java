@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface UserAccountRepository extends Updatable<UserAccountModel> {
 
-    Optional<UserAccountModel> getAccountByEmail(String email);
+    UserAccountModel getAccountByEmail(String email);
 
-    Try<Nothing> createAccount(UserAccountModel userAccount);
+    void createAccount(UserAccountModel userAccount);
 
     Try<Nothing> deleteAccount(UserAccountModel userAccount);
 }

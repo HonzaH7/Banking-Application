@@ -22,10 +22,10 @@ public class DataSourceBean {
         return this.databaseConnection.getConnection();
     };
 
-    public void dslContext(Function<DSLContext, Nothing> function){
+    public <T> T dslContext(Function<DSLContext, T> function){
         try (Connection conn = this.getConnection()) {
             DSLContext create = DSL.using(conn, SQLDialect.POSTGRES);
-            function.apply(create);
+            return function.apply(create);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

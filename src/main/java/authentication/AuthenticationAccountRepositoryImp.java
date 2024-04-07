@@ -1,11 +1,13 @@
 package authentication;
 
+import authentication.models.AuthenticationUserEntity;
 import authentication.models.AuthenticationUserModel;
 import datasource.DataSourceBean;
 import org.jooq.DSLContext;
 import userAccount.UserAccountModel;
 import utils.Nothing;
 
+import static authentication.models.AuthenticationUserModel.anAuthenticationUser;
 import static jooq.classes.Tables.AUTHENTICATION_ACCOUNTS;
 
 public class AuthenticationAccountRepositoryImp implements AuthenticationAccountRepository{
@@ -27,7 +29,7 @@ public class AuthenticationAccountRepositoryImp implements AuthenticationAccount
 
     @Override
     public AuthenticationUserModel getAuthenticationAccountByEmail(String email) {
-        this.dataSourceBean.dslContext(dslContext -> this.doGetAuthenticationAccountByEmail(dslContext, email));
+        return this.dataSourceBean.dslContext(dslContext -> this.doGetAuthenticationAccountByEmail(dslContext, email));
     }
 
     @Override
@@ -41,13 +43,24 @@ public class AuthenticationAccountRepositoryImp implements AuthenticationAccount
                 .set(AUTHENTICATION_ACCOUNTS.PASSWORD, authenticationUser.getHashedPassword())
                 .set(AUTHENTICATION_ACCOUNTS.SALT, authenticationUser.getSalt())
                 .execute();
+
+        return Nothing.nothing();
     }
 
-    private Nothing doGetAuthenticationAccountByEmail(DSLContext dslContext, String email) {
-        dslContext.select(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, AUTHENTICATION_ACCOUNTS.SALT, AUTHENTICATION_ACCOUNTS.PASSWORD)
+    private AuthenticationUserModel doGetAuthenticationAccountByEmail(DSLContext dslContext, String email) {
+        AuthenticationUserEntity authenticationUser = dslContext.select(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, AUTHENTICATION_ACCOUNTS.SALT, AUTHENTICATION_ACCOUNTS.PASSWORD)
                 .from(AUTHENTICATION_ACCOUNTS)
                 .where(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL.eq(email))
-                .fetchOneInto(AuthenticationUserModel.class);
+                .fetchOneInto(AuthenticationUserEntity.class);
+
+        if(authenticationUser == null){
+            throw new RuntimeException("Account does not exist");
+        }
+
+        return anAuthenticationUser()
+                .withAuthenticationEmail(authenticationUser.getEmail())
+                .withSalt(authenticationUser.getSalt())
+                .withHashedPassword(authenticationUser.getPassword());
     }
 
 }

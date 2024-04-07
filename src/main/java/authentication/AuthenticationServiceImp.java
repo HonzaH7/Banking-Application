@@ -64,17 +64,12 @@ public class AuthenticationServiceImp implements AuthenticationService {
         byte[] salt = createSalt();
         byte[] hashedPassword = hasher.hash(4, salt, userAccount.getPassword().getBytes());
 
-        Try<Nothing> result =  userAccountRepository.createAccount(userAccount);
+        userAccountRepository.createAccount(userAccount);
         authenticationAccountRepository.createAuthenticationAccount(anAuthenticationUser()
                 .withAuthenticationEmail(userAccount.getEmail())
                 .withSalt(new String(salt))
                 .withHashedPassword(new String(hashedPassword))
         );
-
-        if (isFailure(result)) {
-            throw new RuntimeException("Failed to create user account, please try again");
-        }
-
 
         return Nothing.nothing();
     }
@@ -119,10 +114,5 @@ public class AuthenticationServiceImp implements AuthenticationService {
 //        userAccountManager.logUser(authenticationUserModel);
 
         return Nothing.nothing();
-    }
-
-    @Override
-    public void update(AuthenticationUserModel entity) {
-        throw new NotImplementedError("Not implemented");
     }
 }
