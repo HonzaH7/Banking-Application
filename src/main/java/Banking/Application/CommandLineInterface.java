@@ -35,8 +35,8 @@ public class CommandLineInterface implements UserInterface{
             if (isLoggedIn) {
                 afterLoginOptions();
             } else {
-                System.out.println("Welcome, what do you want to do?");
-                System.out.println("1. Login\n2. Create account\n3. Exit");
+                systemService.println("Welcome, what do you want to do?");
+                systemService.println("1. Login\n2. Create account\n3. Exit");
                 int input = Integer.parseInt(userInput.nextLine());
                 switch (input) {
                     case 1:
@@ -46,24 +46,24 @@ public class CommandLineInterface implements UserInterface{
                         createAnAccount();
                         break;
                     case 3:
-                        System.out.println("Goodbye!");
+                        systemService.println("Goodbye!");
                         return;
                     default:
-                        System.out.println("Invalid option selected.");
+                        systemService.println("Invalid option selected.");
                 }
             }
         }
     }
 
     private void createAnAccount() {
-        System.out.println("Please create an account.");
-        System.out.println("Your firstname: ");
+        systemService.println("Please create an account.");
+        systemService.println("Your firstname: ");
         String firstname = userInput.nextLine();
-        System.out.println("Your lastname: ");
+        systemService.println("Your lastname: ");
         String lastname = userInput.nextLine();
-        System.out.println("Your email: ");
+        systemService.println("Your email: ");
         String email = userInput.nextLine();
-        System.out.println("Your password: ");
+        systemService.println("Your password: ");
         String password = userInput.nextLine();
 
         Try<Nothing> result = eventBroker.publish(
@@ -77,19 +77,19 @@ public class CommandLineInterface implements UserInterface{
         ));
 
         if(result.isFailure()){
-            System.out.println("Failed to create account: " + result.getCause().getMessage());
+            systemService.println("Failed to create account: [" + result.getCause().getMessage() + "]");
             return;
         }
-        System.out.println("Successfully created an account");
+        systemService.println("Successfully created an account");
 
 
     }
 
     private void loginActionAndFollowUp() {
-        System.out.println("Please login.");
-        System.out.println("Your email: ");
+        systemService.println("Please login.");
+        systemService.println("Your email: ");
         String email = userInput.nextLine();
-        System.out.println("Your password: ");
+        systemService.println("Your password: ");
         String password = userInput.nextLine();
 
         Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(
@@ -101,19 +101,20 @@ public class CommandLineInterface implements UserInterface{
         );
 
         if(result.isFailure()){
-            System.out.println("Failed to login, please try again.");
+            systemService.println("Failed to login, please try again: [" + result.getCause().getMessage() + "]");
             return;
         }
-        System.out.println("Successfully logged in");
+        systemService.println("Successfully logged in");
         isLoggedIn = true;
     }
 
     private void afterLoginOptions() {
-        System.out.println("What action do you want to do?");
-        System.out.println("1. Deposit money");
-        System.out.println("2. Withdraw money");
-        System.out.println("3. Delete account");
-        System.out.println("4. Logout");
+        systemService.println("What action do you want to do?");
+        systemService.println("1. Deposit money");
+        systemService.println("2. Withdraw money");
+        systemService.println("3. Delete account");
+        systemService.println("4. Logout");
+        systemService.println("5. Exit");
         int action = Integer.parseInt(userInput.nextLine());
         switch (action) {
             case 1:
@@ -128,61 +129,64 @@ public class CommandLineInterface implements UserInterface{
             case 4:
                 logout();
                 break;
+            case 5:
+                systemService.println("Goodbye!");
+                return;
             default:
-                System.out.println("Invalid option selected.");
+                systemService.println("Invalid option selected.");
         }
     }
 
     private void logout() {
         Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(LOGOUT));
         if(result.isFailure()){
-            System.out.println("See you later Alligator");
+            systemService.println("See you later Alligator");
             return;
         }
 
-        System.out.println("Logged out successfully.");
+        systemService.println("Logged out successfully.");
         isLoggedIn = false;
     }
 
     private void deleteAccount() {
-        System.out.println("Are you sure you want to delete your account? Please type your password");
+        systemService.println("Are you sure you want to delete your account? Please type your password");
         String password = userInput.nextLine();
 
         Try<Nothing> result = eventBroker.publish(anAuthenticationEvent(DELETE_ACCOUNT, password));
 
         if (result.isFailure()) {
-            System.out.println("Something went wrong, please try again");
+            systemService.println("Something went wrong, please try again");
             return;
         }
 
-        System.out.println("Successfully deleted your account");
+        systemService.println("Successfully deleted your account");
         isLoggedIn = false;
     }
 
     private void deposit() {
-        System.out.println("Amount you would like to deposit:");
+        systemService.println("Amount you would like to deposit:");
         double depositAmount = Double.parseDouble(userInput.nextLine());
         Try<Nothing> result = eventBroker.publish(aMoneyFlowEvent(DEPOSIT, depositAmount));
 
         if (result.isFailure()) {
-            System.out.println("Something went wrong, please try again");
+            systemService.println("Something went wrong, please try again");
             return;
         }
 
-        System.out.println("Successfully deposited [" + depositAmount + "] to your account");
+        systemService.println("Successfully deposited [" + depositAmount + "] to your account");
     }
 
     private void withdraw() {
-        System.out.println("Amount you would like to withdraw:");
+        systemService.println("Amount you would like to withdraw:");
         double withdrawAmount = Double.parseDouble(userInput.nextLine());
         Try<Nothing> result = eventBroker.publish(aMoneyFlowEvent(WITHDRAW, withdrawAmount));
 
         if (result.isFailure()) {
-            System.out.println("Insufficient funds or withdrawal failed. Please try again.");
+            systemService.println("Insufficient funds or withdrawal failed. Please try again.");
             return;
         }
 
-        System.out.println("Successfully withdrew [" + withdrawAmount + "] from your account");
+        systemService.println("Successfully withdrew [" + withdrawAmount + "] from your account");
     }
 
 }

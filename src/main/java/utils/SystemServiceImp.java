@@ -7,4 +7,10 @@ public class SystemServiceImp implements SystemService{
     public InputStream getInput() {
         return System.in;
     }
+
+    @Override
+    public void println(String message) {
+         System.out.println(message);
+    }
+
 }

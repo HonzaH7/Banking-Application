@@ -1,11 +1,9 @@
 package Banking.Application;
 
 import authentication.AuthenticationEvent;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import userAccount.UserAccountManager;
 import userAccount.UserAccountModel;
 import utils.EventBroker.Event;
 import utils.EventBroker.EventBrokerStub;
@@ -16,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static authentication.AuthenticationEvent.anAuthenticationEvent;
 import static userAccount.UserAccountModel.aUserAccount;
 
@@ -35,9 +34,31 @@ class BankingApplicationTests {
 	}
 
 	@Test
+	public void shouldNotLoginWhenPublishFails(){
+		givenNoLoggedUser();
+		givenTerminalAnswers(TerminalOption.LOGIN, "email@email.com", "password");
+		givenPublishErrorMessage("error message");
+
+		whenApplicationStart();
+
+		verifyEventPublished(
+				anAuthenticationEvent(AuthenticationEvent.Type.LOGIN,
+						aUserAccount()
+								.withEmail("email@email.com")
+								.withPassword("password")
+				)
+		);
+
+		verifyOutputPrintedToTerminal("Failed to login, please try again: [error message]");
+	}
+
+
+	@Test
 	public void shouldFailWhenIncorrectCommandSelected(){
 		givenNoLoggedUser();
 		givenTerminalAnswers(TerminalOption.INVALID_OPTION);
+
+		whenApplicationStart();
 
 		verifyOutputPrintedToTerminal("Invalid option selected.");
 	}
@@ -58,8 +79,6 @@ class BankingApplicationTests {
 							.withPassword("password")
 					)
 		);
-
-
 	}
 
 	private void whenApplicationStart() {
@@ -75,14 +94,6 @@ class BankingApplicationTests {
 		this.systemServiceStub.setInput(new ByteArrayInputStream(concatenatedAnswer.getBytes()));
 	}
 
-	private int getInputNumberFromEventType(AuthenticationEvent.Type type){
-		return switch (type){
-			case CREATE_ACCOUNT ->  2;
-			case LOGIN -> 1;
-			default -> throw new IllegalArgumentException("Unsupported event type: " + type);
-		};
-	}
-
 	private void givenNoLoggedUser() {
 	}
 
@@ -90,8 +101,17 @@ class BankingApplicationTests {
 
 	}
 
+	private void givenPublishErrorMessage(String errorMessage) {
+		eventBrokerStub.setErrorMessage(errorMessage);
+	}
+
+	private void verifyOutputPrintedToTerminal(String expected) {
+		assertThat(this.systemServiceStub.getMessages()).contains(expected);
+	}
+
 	private void verifyEventPublished(Event event) {
 		Event lastPublishedEvent = this.eventBrokerStub.getLastPublishedEvent();
+		//TODO: deppEquals JESTLI FUNGUJE SPRÁVNĚ?
 		Objects.deepEquals(event, lastPublishedEvent);
 	}
 
