@@ -5,7 +5,6 @@ import datasource.DataSourceBean;
 import moneyFlow.MoneyFlowEventHandler;
 import moneyFlow.MoneyFlowService;
 import moneyFlow.MoneyFlowServiceImp;
-import org.modelmapper.ModelMapper;
 import userAccount.UserAccountManager;
 import userAccount.UserAccountRepository;
 import userAccount.UserAccountRepositoryImp;
@@ -23,9 +22,11 @@ public class BankingApplication {
 		EventBroker eventBroker = new EventBroker();
 
 		DataSourceBean dataSourceBean = new DataSourceBean(new DatabaseConnection());
-		UserAccountRepository userAccountRepository = new UserAccountRepositoryImp();
+		UserAccountRepository userAccountRepository = new UserAccountRepositoryImp(dataSourceBean);
 
-		AuthenticationService authenticationService = new AuthenticationServiceImp(userAccountRepository, dataSourceBean, UserAccountManager.getInstance());
+		AuthenticationAccountRepository authenticationAccountRepository = new AuthenticationAccountRepositoryImp(dataSourceBean);
+
+		AuthenticationService authenticationService = new AuthenticationServiceImp(userAccountRepository, authenticationAccountRepository, UserAccountManager.getInstance());
 		AuthenticationEventHandler authenticationEventHandler = new AuthenticationEventHandler(authenticationService, eventBroker);
 
 		MoneyFlowService moneyFlowService = new MoneyFlowServiceImp(dataSourceBean, UserAccountManager.getInstance());

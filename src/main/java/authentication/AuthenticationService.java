@@ -1,10 +1,8 @@
 package authentication;
 
-import authentication.models.AuthenticationUserModel;
 import userAccount.UserAccountModel;
-import utils.Updatable;
 
-public interface AuthenticationService extends Updatable<AuthenticationUserModel> {
+public interface AuthenticationService {
 
     void createAccount(UserAccountModel userAccount);
 

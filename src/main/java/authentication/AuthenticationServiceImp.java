@@ -2,9 +2,7 @@ package authentication;
 
 import at.favre.lib.bytes.Bytes;
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import authentication.models.AuthenticationUserEntity;
 import authentication.models.AuthenticationUserModel;
-import datasource.DataSourceBean;
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 import org.jooq.DSLContext;
@@ -16,16 +14,14 @@ import userAccount.UserAccountManager;
 import userAccount.UserAccountRepository;
 import utils.Nothing;
 
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 import static authentication.models.AuthenticationUserModel.anAuthenticationUser;
 import static jooq.classes.Tables.ACCOUNTS;
-import static jooq.classes.Tables.AUTHENTICATION_ACCOUNTS;
 
 public class AuthenticationServiceImp implements AuthenticationService {
     private final UserAccountRepository userAccountRepository;
-    private final DataSourceBean dataSourceBean;
+    private final AuthenticationAccountRepository authenticationAccountRepository;
     private final UserAccountManager userAccountManager;
 
     private final SecureRandom secureRandom;
@@ -34,10 +30,10 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationServiceImp(UserAccountRepository userAccountRepository,
-                                    DataSourceBean dataSourceBean,
+                                    AuthenticationAccountRepository authenticationAccountRepository,
                                     UserAccountManager userAccountManager) {
         this.userAccountRepository = userAccountRepository;
-        this.dataSourceBean = dataSourceBean;
+        this.authenticationAccountRepository = authenticationAccountRepository;
         this.userAccountManager = userAccountManager;
         this.secureRandom = new SecureRandom();
         this.hasher = BCrypt.with(secureRandom);
@@ -45,17 +41,17 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
     @Override
     public void createAccount(UserAccountModel userAccount) {
-        this.dataSourceBean.dslContext(dslContext -> this.doCreateAccount(dslContext, userAccount));
+//        this.dataSourceBean.dslContext(dslContext -> this.doCreateAccount(dslContext, userAccount));
     }
 
     @Override
     public void login(String email, String password){
-        this.dataSourceBean.dslContext(dslContext -> this.doLogin(dslContext, email, password));
+//        this.dataSourceBean.dslContext(dslContext -> this.doLogin(dslContext, email, password));
     }
 
     @Override
     public void deleteAccount(UserAccountModel userAccount, String password){
-        this.dataSourceBean.dslContext(dslContext -> this.doDelete(dslContext, userAccount, password));
+//        this.dataSourceBean.dslContext(dslContext -> this.doDelete(dslContext, userAccount, password));
     }
 
     @Override
@@ -64,27 +60,20 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Transactional
-    protected Nothing doCreateAccount(DSLContext dslContext, UserAccountModel userAccount) {
+    protected Nothing doCreateAccount(UserAccountModel userAccount) {
         byte[] salt = createSalt();
         byte[] hashedPassword = hasher.hash(4, salt, userAccount.getPassword().getBytes());
 
         Try<Nothing> result =  userAccountRepository.createAccount(userAccount);
+        authenticationAccountRepository.createAuthenticationAccount(anAuthenticationUser()
+                .withAuthenticationEmail(userAccount.getEmail())
+                .withSalt(new String(salt))
+                .withHashedPassword(new String(hashedPassword))
+        );
 
-        int isAuthenticationAccountCreated = dslContext.insertInto(AUTHENTICATION_ACCOUNTS)
-                .set(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, userAccount.getEmail())
-                .set(AUTHENTICATION_ACCOUNTS.PASSWORD, new String(hashedPassword))
-                .set(AUTHENTICATION_ACCOUNTS.SALT, new String(salt))
-                .execute();
-
-        if(isFailure(isAuthenticationAccountCreated)){
+        if (isFailure(result)) {
             throw new RuntimeException("Failed to create user account, please try again");
         }
-
-//        int result = dslContext.insertInto(ACCOUNTS)
-//                .set(ACCOUNTS.FIRST_NAME, userAccount.getFirstName())
-//                .set(ACCOUNTS.LAST_NAME, userAccount.getLastName())
-//                .set(ACCOUNTS.EMAIL, userAccount.getEmail())
-//                .execute();
 
 
         return Nothing.nothing();
@@ -112,19 +101,16 @@ public class AuthenticationServiceImp implements AuthenticationService {
         return result != 1;
     }
     
-    private Nothing doLogin(DSLContext dslContext, String email, String password) {
-        AuthenticationUserEntity user =
-                dslContext.select(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL, AUTHENTICATION_ACCOUNTS.SALT)
-                .from(AUTHENTICATION_ACCOUNTS)
-                .where(AUTHENTICATION_ACCOUNTS.AUTHENTICATION_EMAIL.eq(email).and(AUTHENTICATION_ACCOUNTS.PASSWORD.eq(password)))
-                .fetchOneInto(AuthenticationUserEntity.class);
+    private Nothing doLogin(String email, String password) {
+        AuthenticationUserModel user = authenticationAccountRepository.getAuthenticationAccountByEmail(email);
 
         if(user == null){
             throw new RuntimeException("Wrong email or password, please try again");
         }
 
         BCrypt.Verifyer verifyer = BCrypt.verifyer();
-        BCrypt.Result result = verifyer.verify(password.getBytes(), 4, user.getSalt().getBytes(), user.getPassword().getBytes());
+        BCrypt.Result result = verifyer.verify(password.getBytes(), 4, user.getSalt().getBytes(), user.getHashedPassword().getBytes());
+
 
 //        AuthenticationUserModel authenticationUserModel = anAuthenticationUser()
 //                .withAuthenticationEmail(user.getEmail())
