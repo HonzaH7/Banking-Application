@@ -1,5 +1,7 @@
 package utils.EventBroker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.Nothing;
 import io.vavr.control.Try;
 
@@ -13,6 +15,16 @@ import static utils.Nothing.nothing;
 
 public class EventBrokerImp implements EventBroker {
     private final Map<Class<? extends Event>, List<Subscriber<? extends Event>>> subscribersMap = new LinkedHashMap<>();
+
+    private final Logger logger;
+
+    public EventBrokerImp(Logger logger){
+        this.logger = logger;
+    }
+
+    public EventBrokerImp(){
+        this(LoggerFactory.getLogger(EventBrokerImp.class));
+    }
 
     public <T extends Event> void subscribe(Class<T> eventType, Subscriber<T> subscriber){
         List<Subscriber<? extends Event>> subscribers = subscribersMap.get(eventType);

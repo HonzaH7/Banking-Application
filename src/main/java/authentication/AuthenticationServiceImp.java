@@ -27,40 +27,28 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private final SecureRandom secureRandom;
 
     private final BCrypt.Hasher hasher;
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+    private final Logger logger;
 
     public AuthenticationServiceImp(UserAccountRepository userAccountRepository,
                                     AuthenticationAccountRepository authenticationAccountRepository,
-                                    UserAccountManager userAccountManager) {
+                                    UserAccountManager userAccountManager,
+                                    Logger logger) {
         this.userAccountRepository = userAccountRepository;
         this.authenticationAccountRepository = authenticationAccountRepository;
         this.userAccountManager = userAccountManager;
         this.secureRandom = new SecureRandom();
         this.hasher = BCrypt.with(secureRandom);
+        this.logger = logger;
+    }
+
+    public AuthenticationServiceImp(UserAccountRepository userAccountRepository,
+                                    AuthenticationAccountRepository authenticationAccountRepository,
+                                    UserAccountManager userAccountManager) {
+        this(userAccountRepository, authenticationAccountRepository, userAccountManager, LoggerFactory.getLogger(AuthenticationServiceImp.class));
     }
 
     @Override
     public void createAccount(UserAccountModel userAccount) {
-//        this.dataSourceBean.dslContext(dslContext -> this.doCreateAccount(dslContext, userAccount));
-    }
-
-    @Override
-    public void login(String email, String password){
-//        this.dataSourceBean.dslContext(dslContext -> this.doLogin(dslContext, email, password));
-    }
-
-    @Override
-    public void deleteAccount(UserAccountModel userAccount, String password){
-//        this.dataSourceBean.dslContext(dslContext -> this.doDelete(dslContext, userAccount, password));
-    }
-
-    @Override
-    public void logout() {
-        userAccountManager.logOut();
-    }
-
-    @Transactional
-    protected Nothing doCreateAccount(UserAccountModel userAccount) {
         byte[] salt = createSalt();
         byte[] hashedPassword = hasher.hash(4, salt, userAccount.getPassword().getBytes());
 
@@ -70,49 +58,45 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 .withSalt(new String(salt))
                 .withHashedPassword(new String(hashedPassword))
         );
-
-        return Nothing.nothing();
     }
 
-    private byte[] createSalt() {
-       return Bytes.random(16, this.secureRandom).array();
-    }
-
-    private Nothing doDelete(DSLContext dslContext, UserAccountModel userAccount, String password) {
-        if (!userAccount.getPassword().equals(password)) {
-            throw new RuntimeException("Incorrect password");
-        }
-        int result = dslContext.deleteFrom(ACCOUNTS)
-                .where(ACCOUNTS.EMAIL.eq(userAccount.getEmail()))
-                .execute();
-        if (isFailure(result)) {
-            throw new RuntimeException("Failed to delete user account");
-        }
-
-        return Nothing.nothing();
-    }
-
-    private boolean isFailure(int result) {
-        return result != 1;
-    }
-    
-    private Nothing doLogin(String email, String password) {
+    @Override
+    public void login(String email, String password){
         AuthenticationUserModel user = authenticationAccountRepository.getAuthenticationAccountByEmail(email);
 
         if(user == null){
             throw new RuntimeException("Wrong email or password, please try again");
         }
 
+        // tohle nejspis pujde extrahovat do metody, delas to stejne v tom delete, musis porovnat dve hesla
+        // - jedno nezahashovane (co prislo od uzivatele jako parametr) a druhe zahashovane - z databaze
         BCrypt.Verifyer verifyer = BCrypt.verifyer();
         BCrypt.Result result = verifyer.verify(password.getBytes(), 4, user.getSalt().getBytes(), user.getHashedPassword().getBytes());
 
-
-//        AuthenticationUserModel authenticationUserModel = anAuthenticationUser()
-//                .withAuthenticationEmail(user.getEmail())
-//                .withSalt(user.getEmail());
-
-//        userAccountManager.logUser(authenticationUserModel);
-
-        return Nothing.nothing();
+        // pokud bude validni, tak prihlasit do toho user manazeru
+        // pokud ne, nic se nedeje - meli by jsme veci logovat, takze pridat logger a logovat veci
     }
+
+    @Override
+    public void deleteAccount(UserAccountModel userAccount, String password){
+        if (!userAccount.getPassword().equals(password)) {
+            throw new RuntimeException("Incorrect password");
+        }
+
+        AuthenticationUserModel authenticationUser = authenticationAccountRepository.getAuthenticationAccountByEmail(userAccount.getEmail());
+
+        // porovnat hesla - prichozi heslo neni hash, to v databazi je hash toho saltu a hesla
+
+        // pokud sedi, musis smazat jak authentication account (tohle myslim musis prvni, dle toho databazoveho schematu), tak user account
+    }
+
+    @Override
+    public void logout() {
+        userAccountManager.logOut();
+    }
+
+    private byte[] createSalt() {
+       return Bytes.random(16, this.secureRandom).array();
+    }
+
 }
